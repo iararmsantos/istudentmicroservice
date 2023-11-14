@@ -1,0 +1,24 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: course-service
+  #database configuration
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/course_service?useTimezone=true&serverTimezone=UTC
+    username: root
+    password: root
+
+  jpa:
+    show_sql: true
+    hibernate:
+      ddl-auto: update
+
+#  flyway:
+#    url: jdbc:mysql://localhost:3310
+#    schemas: istudent
+#    user: root
+#    password: root
+

@@ -1,0 +1,23 @@
+server:
+  port: 8086
+
+spring:
+  application:
+    name: parent-service
+  #database configuration
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/parent_service?useTimezone=true&serverTimezone=UTC
+    username: root
+    password: root
+
+  jpa:
+    show_sql: true
+    hibernate:
+      ddl-auto: update
+
+#  flyway:
+#    url: jdbc:mysql://localhost:3310
+#    schemas: parent-service
+#    user: root
+#    password: root

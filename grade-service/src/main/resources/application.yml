@@ -1,0 +1,23 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: grade-service
+  #database configuration
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/grade_service?useTimezone=true&serverTimezone=UTC
+    username: root
+    password: root
+
+  jpa:
+    show_sql: true
+    hibernate:
+      ddl-auto: update
+
+#  flyway:
+#    url: jdbc:mysql://localhost:3310
+#    schemas: grade-service
+#    user: root
+#    password: root
