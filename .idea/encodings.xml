@@ -7,14 +7,29 @@
     <file url="file://$PROJECT_DIR$/gateway-service/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/grade-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/grade-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/istudentmicroservice/course-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/istudentmicroservice/course-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/istudentmicroservice/gateway-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/istudentmicroservice/gateway-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/istudentmicroservice/grade-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/istudentmicroservice/grade-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/istudentmicroservice/login-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/istudentmicroservice/login-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/istudentmicroservice/parent-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/istudentmicroservice/parent-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/istudentmicroservice/student-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/istudentmicroservice/student-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/istudentmicroservice/teacher-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/istudentmicroservice/teacher-service/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/login-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/login-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/naming-server/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/naming-server/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/parent-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/parent-service/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/student-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/student-service/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/teacher-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/teacher-service/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/user-service/src/main/java" charset="UTF-8" />
   </component>
 </project>

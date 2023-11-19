@@ -22,6 +22,8 @@ public class GradeServiceImpl implements GradeService {
         Grade grade = Grade.builder()
                 .letterGrade(request.getLetterGrade())
                 .numberGrade(request.getNumberGrade())
+                .courseId(request.getCourseId())
+                .studentId(request.getStudentId())
                 .build();
         grade.setCreationDate(new Date());
         return repository.save(grade);
@@ -39,6 +41,8 @@ public class GradeServiceImpl implements GradeService {
                 .letterGrade(grade.getLetterGrade())
                 .numberGrade(grade.getNumberGrade())
                 .creationDate(grade.getCreationDate())
+                .courseId(grade.getCourseId())
+                .studentId(grade.getStudentId())
                 .build();
     }
 

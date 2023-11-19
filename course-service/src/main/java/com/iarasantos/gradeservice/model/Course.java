@@ -31,15 +31,16 @@ public class Course {
     private String title;
 
     @Enumerated(EnumType.STRING)
-    private Season season;
+    private Season section;
 
     @Column
     private int year;
 
+    @Column(name = "teacher_id")
+    @JsonProperty("teacher_id")
+    private Long teacherId;
+
     @CreationTimestamp
     @JsonProperty("creation_date")
     private Date creationDate;
-
-    //section - semester season
-    //each section has a list of grades
 }

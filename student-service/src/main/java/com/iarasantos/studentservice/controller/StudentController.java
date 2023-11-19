@@ -44,6 +44,7 @@ public class StudentController {
     }
 
     @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public Student getStudent(@PathVariable("id") String studentId) {
         return Optional.ofNullable(studentId)
                 .map(s -> Long.valueOf(studentId))
@@ -52,6 +53,7 @@ public class StudentController {
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteStudent(@PathVariable("id") String studentId) {
         Student student = Optional.ofNullable(studentId)
                 .map(s -> Long.valueOf(studentId))

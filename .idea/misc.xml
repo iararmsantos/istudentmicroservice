@@ -4,14 +4,21 @@
   <component name="MavenProjectsManager">
     <option name="originalFiles">
       <list>
-        <option value="$PROJECT_DIR$/user-service/pom.xml" />
-        <option value="$PROJECT_DIR$/teacher-service/pom.xml" />
-        <option value="$PROJECT_DIR$/login-service/pom.xml" />
-        <option value="$PROJECT_DIR$/student-service/pom.xml" />
+        <option value="$PROJECT_DIR$/istudentmicroservice/grade-service/pom.xml" />
+        <option value="$PROJECT_DIR$/istudentmicroservice/login-service/pom.xml" />
+        <option value="$PROJECT_DIR$/istudentmicroservice/course-service/pom.xml" />
+        <option value="$PROJECT_DIR$/istudentmicroservice/parent-service/pom.xml" />
+        <option value="$PROJECT_DIR$/istudentmicroservice/gateway-service/pom.xml" />
+        <option value="$PROJECT_DIR$/istudentmicroservice/student-service/pom.xml" />
+        <option value="$PROJECT_DIR$/istudentmicroservice/teacher-service/pom.xml" />
         <option value="$PROJECT_DIR$/course-service/pom.xml" />
-        <option value="$PROJECT_DIR$/grade-service/pom.xml" />
-        <option value="$PROJECT_DIR$/parent-service/pom.xml" />
         <option value="$PROJECT_DIR$/gateway-service/pom.xml" />
+        <option value="$PROJECT_DIR$/grade-service/pom.xml" />
+        <option value="$PROJECT_DIR$/login-service/pom.xml" />
+        <option value="$PROJECT_DIR$/parent-service/pom.xml" />
+        <option value="$PROJECT_DIR$/student-service/pom.xml" />
+        <option value="$PROJECT_DIR$/teacher-service/pom.xml" />
+        <option value="$PROJECT_DIR$/naming-server/pom.xml" />
       </list>
     </option>
   </component>

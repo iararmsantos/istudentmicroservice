@@ -27,6 +27,13 @@ public class GradeResponse {
     @JsonProperty("number_grade")
     private Double numberGrade;
 
+    @JsonProperty("student_id")
+    private Long studentId;
+
+    @JsonProperty("course_id")
+    @Column(name = "course_id")
+    private Long courseId;
+
     @JsonProperty("creation_date")
     private Date creationDate;
 }

@@ -18,4 +18,10 @@ public class GradeRequest {
 
     @JsonProperty("number_grade")
     private Double numberGrade;
+
+    @JsonProperty("student_id")
+    private Long studentId;
+
+    @JsonProperty("course_id")
+    private Long courseId;
 }

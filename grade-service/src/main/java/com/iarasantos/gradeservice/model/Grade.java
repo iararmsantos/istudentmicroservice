@@ -21,7 +21,7 @@ import org.hibernate.annotations.CreationTimestamp;
 @Builder
 public class Grade {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @JsonProperty("letter_grade")
@@ -29,9 +29,15 @@ public class Grade {
     private String letterGrade;
 
     @JsonProperty("number_grade")
+    @Column(name = "number_grade")
     private Double numberGrade;
 
+    @JsonProperty("student_id")
     private Long studentId;
+
+    @JsonProperty("course_id")
+    @Column(name = "course_id")
+    private Long courseId;
 
     @CreationTimestamp
     @JsonProperty("creation_date")

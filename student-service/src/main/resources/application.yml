@@ -1,6 +1,9 @@
 server:
   port: 8082
-
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
 spring:
   application:
     name: student-service
@@ -16,8 +19,8 @@ spring:
     hibernate:
       ddl-auto: update
 
-#  flyway:
-#    url: jdbc:mysql://localhost:3310
-#    schemas: student-service
-#    user: root
-#    password: root
+  flyway:
+    url: jdbc:mysql://localhost:3306
+    schemas: student-service
+    user: root
+    password: root

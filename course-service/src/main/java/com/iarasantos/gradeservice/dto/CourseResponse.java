@@ -26,6 +26,9 @@ public class CourseResponse {
 
     private int year;
 
+    @JsonProperty("teacher_id")
+    private Long teacherId;
+
     @JsonProperty("creation_date")
     private Date creationDate;
 }

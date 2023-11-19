@@ -25,7 +25,6 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public Student createStudent(Student student) {
-        student.setRole(Role.STUDENT);
         student.setCreationDate(new Date());
 
         return repository.save(student);

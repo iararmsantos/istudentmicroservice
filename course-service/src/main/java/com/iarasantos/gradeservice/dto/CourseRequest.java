@@ -1,5 +1,6 @@
 package com.iarasantos.gradeservice.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.iarasantos.gradeservice.model.Season;
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
@@ -21,4 +22,7 @@ public class CourseRequest {
     private Season section;
 
     private int year;
+
+    @JsonProperty("teacher_id")
+    private Long teacherId;
 }

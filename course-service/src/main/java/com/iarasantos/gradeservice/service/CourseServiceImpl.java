@@ -23,8 +23,9 @@ public class CourseServiceImpl implements CourseService {
     public Course createCourse(CourseRequest request) {
         Course course = Course.builder()
                 .title(request.getTitle())
-                .season(request.getSection())
+                .section(request.getSection())
                 .year(request.getYear())
+                .teacherId(request.getTeacherId())
                 .build();
         course.setCreationDate(new Date());
         return repository.save(course);
@@ -42,7 +43,8 @@ public class CourseServiceImpl implements CourseService {
                 .id(course.getId())
                 .title(course.getTitle())
                 .year(course.getYear())
-                .section(course.getSeason())
+                .section(course.getSection())
+                .teacherId(course.getTeacherId())
                 .creationDate(course.getCreationDate())
                 .build();
     }
@@ -70,7 +72,7 @@ public class CourseServiceImpl implements CourseService {
 
         if (request.getSection() != null && Arrays.stream(Season.values()).anyMatch(
                 (t) -> t.name().equals(request.getSection()))) {
-            course.setSeason(request.getSection());
+            course.setSection(request.getSection());
         }
     }
 }

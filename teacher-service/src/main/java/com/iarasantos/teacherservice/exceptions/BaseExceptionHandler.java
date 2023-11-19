@@ -2,6 +2,7 @@ package com.iarasantos.teacherservice.exceptions;
 
 import com.iarasantos.teacherservice.model.ErrorMessage;
 import jakarta.validation.ConstraintViolationException;
+import java.util.Date;
 import java.util.NoSuchElementException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,26 +11,40 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
 
 @ControllerAdvice
 public class BaseExceptionHandler {
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorMessage> handleNotValidException(MethodArgumentNotValidException e) {
-        var errors = e.getAllErrors();
-
-        ErrorMessage message = null;
-        if (errors != null && !errors.isEmpty()) {
-            message  = new ErrorMessage(400, errors.get(0).getDefaultMessage());
-            return new ResponseEntity<ErrorMessage>(message, HttpStatus.BAD_REQUEST);
-        }
-        message = new ErrorMessage(400, "Bad Request");
-        return new ResponseEntity<ErrorMessage>(message, HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(Exception.class)
+    public final ResponseEntity<ExceptionResponse> handleAllExceptions(Exception ex, WebRequest request) {
+        ExceptionResponse exceptionResponse =ExceptionResponse.builder()
+                .timestamp(new Date())
+                .message(ex.getMessage())
+                .details(request.getDescription(false))
+                .build();
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ExceptionResponse> handleNotValidException(MethodArgumentNotValidException ex, WebRequest request) {
+        ExceptionResponse exceptionResponse =ExceptionResponse.builder()
+                .timestamp(new Date())
+                .message(ex.getMessage())
+                .details(request.getDescription(false))
+                .build();
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+    }
+
+
     @ExceptionHandler({NoSuchElementException.class, NumberFormatException.class})
-    public ResponseEntity<ErrorMessage> handleNoSuchElementException(Exception e) {
-        ErrorMessage message = new ErrorMessage(400, "Not Found");
-        return new ResponseEntity<ErrorMessage>(message, HttpStatus.NOT_FOUND);
+    public ResponseEntity<ExceptionResponse> handleNoSuchElementException(Exception ex, WebRequest request) {
+        ExceptionResponse exceptionResponse =ExceptionResponse.builder()
+                .timestamp(new Date())
+                .message(ex.getMessage())
+                .details(request.getDescription(false))
+                .build();
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -39,14 +54,23 @@ public class BaseExceptionHandler {
     }
 
     @ExceptionHandler({HttpMessageNotReadableException.class, HttpRequestMethodNotSupportedException.class})
-    public ResponseEntity<ErrorMessage> handleNotSupportedException(Exception e) {
-        ErrorMessage message = new ErrorMessage(400, "Bad Request");
-        return new ResponseEntity<ErrorMessage>(message, HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ExceptionResponse> handleNotSupportedException(Exception ex, WebRequest request) {
+        ExceptionResponse exceptionResponse =ExceptionResponse.builder()
+                .timestamp(new Date())
+                .message(ex.getMessage())
+                .details(request.getDescription(false))
+                .build();
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorMessage> handleIllegalArgumentException(IllegalArgumentException e) {
-        ErrorMessage message = new ErrorMessage(400, e.getMessage());
-        return new ResponseEntity<ErrorMessage>(message, HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ExceptionResponse> handleIllegalArgumentException(
+            IllegalArgumentException ex, WebRequest request) {
+        ExceptionResponse exceptionResponse =ExceptionResponse.builder()
+                .timestamp(new Date())
+                .message(ex.getMessage())
+                .details(request.getDescription(false))
+                .build();
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
     }
 }
