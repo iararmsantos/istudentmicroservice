@@ -1,8 +1,9 @@
 package com.iarasantos.gradeservice.service;
 
-import com.iarasantos.gradeservice.dto.GradeResponse;
+import com.iarasantos.common.utilcommon.mapper.DozerMapper;
+import com.iarasantos.gradeservice.data.vo.v1.GradeVO;
+import com.iarasantos.gradeservice.exception.ResourceNotFoundException;
 import com.iarasantos.gradeservice.model.Grade;
-import com.iarasantos.gradeservice.dto.GradeRequest;
 import com.iarasantos.gradeservice.repository.GradeRepository;
 import java.util.Date;
 import java.util.List;
@@ -18,37 +19,23 @@ public class GradeServiceImpl implements GradeService {
     private GradeRepository repository;
 
     @Override
-    public Grade createGrade(GradeRequest request) {
-        Grade grade = Grade.builder()
-                .letterGrade(request.getLetterGrade())
-                .numberGrade(request.getNumberGrade())
-                .courseId(request.getCourseId())
-                .studentId(request.getStudentId())
-                .build();
+    public GradeVO createGrade(GradeVO request) {
+        Grade grade = DozerMapper.parseObject(request, Grade.class);
         grade.setCreationDate(new Date());
-        return repository.save(grade);
+        return DozerMapper.parseObject(repository.save(grade), GradeVO.class);
     }
 
     @Override
-    public List<GradeResponse> getGrades() {
-        List<Grade> grades = (List<Grade>) repository.findAll();
-        return grades.stream().map(grade -> mapToGradeResponse(grade)).toList();
-    }
-
-    private GradeResponse mapToGradeResponse(Grade grade) {
-        return GradeResponse.builder()
-                .id(grade.getId())
-                .letterGrade(grade.getLetterGrade())
-                .numberGrade(grade.getNumberGrade())
-                .creationDate(grade.getCreationDate())
-                .courseId(grade.getCourseId())
-                .studentId(grade.getStudentId())
-                .build();
+    public List<GradeVO> getGrades() {
+        return DozerMapper.parseListObjects(repository.findAll(), GradeVO.class);
     }
 
     @Override
-    public Grade getGradeById(long gradeId) {
-        return repository.findGradeById(gradeId);
+    public GradeVO getGradeById(long gradeId) {
+        Grade grade = repository.findById(gradeId).orElseThrow(
+                () -> new ResourceNotFoundException("Student with id " + gradeId + " not found!"));
+
+        return DozerMapper.parseObject(grade, GradeVO.class);
     }
 
     @Override
@@ -57,18 +44,13 @@ public class GradeServiceImpl implements GradeService {
     }
 
     @Override
-    public void updateGrade(Grade grade, GradeRequest request) {
-        setGradeUpdate(grade, request);
-        repository.save(grade);
-    }
-
-    private void setGradeUpdate(Grade grade, GradeRequest request) {
-        if (request.getLetterGrade() != null) {
-            grade.setLetterGrade(request.getLetterGrade());
-        }
-
-        if(request.getNumberGrade() != null) {
-            grade.setNumberGrade(request.getNumberGrade());
-        }
+    public GradeVO updateGrade(GradeVO request) {
+        Grade grade = repository.findById(request.getId()).orElseThrow(
+                () -> new ResourceNotFoundException("Student with id " + request.getId() + " not found!"));
+        grade.setLetterGrade(request.getLetterGrade());
+        grade.setNumberGrade(request.getNumberGrade());
+        grade.setStudentId(request.getStudentId());
+        grade.setCourseId(request.getCourseId());
+        return DozerMapper.parseObject(repository.save(grade), GradeVO.class);
     }
 }

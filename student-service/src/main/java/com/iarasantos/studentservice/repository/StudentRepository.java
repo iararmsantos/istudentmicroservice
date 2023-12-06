@@ -1,17 +1,13 @@
 package com.iarasantos.studentservice.repository;
 
-import com.iarasantos.studentservice.model.ParentList;
 import com.iarasantos.studentservice.model.Student;
-import java.util.List;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface StudentRepository extends CrudRepository<Student, Long> {
-    Student findStudentById(Long studentId);
+public interface StudentRepository extends JpaRepository<Student, Long> {
 
     void deleteById(Long studentId);
 
-    
 
 }

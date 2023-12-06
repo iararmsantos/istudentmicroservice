@@ -11,10 +11,10 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class ParentProxy {
     private final RestTemplate restTemplate;
-    private final String url;
+    @Value("${urls.parents}")//create this in all proxyes
+    private String url;
 
-    public ParentProxy(@Value("${parent.url}") String url, RestTemplate restTemplate) {
-        this.url = url;
+    public ParentProxy(RestTemplate restTemplate) {
         this.restTemplate = new  RestTemplate(new HttpComponentsClientHttpRequestFactory());
     }
 

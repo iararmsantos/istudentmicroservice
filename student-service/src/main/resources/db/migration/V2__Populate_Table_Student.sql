@@ -5,7 +5,7 @@ insert into student (id, first_name, last_name, email, phone, creation_date, rol
 (4, 'Alejandra', 'Simic', 'asimic3@hubpages.com', '1117156012', '2023-03-12 22:02:41', null),
 (5, 'Dodie', 'De''Vere - Hunt', 'ddeverehunt4@instagram.com', '4552603771', '2023-10-16 09:08:52', null);
 
-INSERT INTO `parent_list` (`id`, `parent_id`, `student_id`) VALUES (1, 1, 1);
-INSERT INTO `parent_list` (`id`, `parent_id`, `student_id`) VALUES (2, 2, 1);
-INSERT INTO `parent_list` (`id`, `parent_id`, `student_id`) VALUES (3, 3, 2);
-INSERT INTO `parent_list` (`id`, `parent_id`, `student_id`) VALUES (4, 4, 2);
+INSERT INTO `student_parent` (`id`, `parent_id`, `student_id`) VALUES (1, 1, 1);
+INSERT INTO `student_parent` (`id`, `parent_id`, `student_id`) VALUES (2, 2, 1);
+INSERT INTO `student_parent` (`id`, `parent_id`, `student_id`) VALUES (3, 3, 2);
+INSERT INTO `student_parent` (`id`, `parent_id`, `student_id`) VALUES (4, 4, 2);

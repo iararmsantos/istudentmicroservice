@@ -1,12 +1,13 @@
 package com.iarasantos.studentservice.service;
 
-import com.iarasantos.studentservice.dto.ParentListRequest;
-import com.iarasantos.studentservice.dto.StudentParentRequest;
-import com.iarasantos.studentservice.dto.StudentRequest;
-import com.iarasantos.studentservice.model.ParentList;
+import com.iarasantos.studentservice.data.vo.v1.StudentParentRequest;
+import com.iarasantos.studentservice.data.vo.v1.StudentVO;
+import com.iarasantos.studentservice.exceptions.ResourceNotFoundException;
+import com.iarasantos.studentservice.mapper.DozerMapper;
+import com.iarasantos.studentservice.model.StudentParent;
 import com.iarasantos.studentservice.model.Role;
 import com.iarasantos.studentservice.model.Student;
-import com.iarasantos.studentservice.repository.ParentListRepository;
+import com.iarasantos.studentservice.repository.StudentParentsRepository;
 import com.iarasantos.studentservice.repository.StudentRepository;
 import java.util.Date;
 import java.util.List;
@@ -21,84 +22,71 @@ public class StudentServiceImpl implements StudentService {
     private StudentRepository repository;
 
     @Autowired
-    private ParentListRepository parentRepository;
+    private StudentParentsRepository parentRepository;
 
     @Override
-    public Student createStudent(Student student) {
-        student.setCreationDate(new Date());
+    public StudentVO createStudent(StudentVO student) {
+        Student std = DozerMapper.parseObject(student, Student.class);
 
-        return repository.save(student);
+        std.setCreationDate(new Date());
+        return DozerMapper.parseObject(repository.save(std), StudentVO.class);
     }
 
     @Override
-    public List<Student> getStudents() {
-        return (List<Student>) repository.findAll();
+    public List<StudentVO> getStudents() {
+        return DozerMapper.parseListObjects(repository.findAll(), StudentVO.class);
     }
 
     @Override
-    public Student getStudentById(Long studentId) {
-        return repository.findStudentById(studentId);
+    public StudentVO getStudentById(Long studentId) {
+        Student student = repository.findById(studentId).orElseThrow(
+                () -> new ResourceNotFoundException("Student with id " + studentId + " not found!"));
+        return DozerMapper.parseObject(student, StudentVO.class);
     }
 
     @Override
     public void deleteStudent(Long studentId) {
+        Student student = repository.findById(studentId).orElseThrow(
+                () -> new ResourceNotFoundException("Student with id " + studentId + " not found!"));
         repository.deleteById(studentId);
-
+        parentRepository.deleteByStudentId(student.getId());
     }
 
     @Override
-    public void updateStudent(Student student, StudentRequest request) {
-        setStudentUpdate(student, request);
-        repository.save(student);
+    public StudentVO updateStudent(StudentVO request) {
+        Student student = repository.findById(request.getId()).orElseThrow(
+                () -> new ResourceNotFoundException("Student with id " + request.getId() + " not found!"));
+
+        student.setFirstName(request.getFirstName());
+        student.setLastName(request.getLastName());
+        student.setPhone(request.getPhone());
+        student.setEmail(request.getEmail());
+        student.setRole(request.getRole());
+
+        return DozerMapper.parseObject(repository.save(student), StudentVO.class);
     }
 
     @Override
-    public void validateStudent(String studentId) {
-        repository.findById(Long.valueOf(studentId)).orElseThrow();
-    }
-
-    @Override
-    public List<ParentList> createStudentWithParents(StudentParentRequest request) {
+    public StudentParentRequest createStudentWithParents(StudentParentRequest request) {
         Student student = request.getStudent();
         student.setRole(Role.STUDENT);
         student.setCreationDate(new Date());
 
         Student saved = repository.save(student);
-        List<ParentList> parents = request.getParents().stream()
+        List<StudentParent> parents = request.getParents().stream()
                 .map(parent -> mapToParent(parent, saved)).toList();
 
-        List<ParentList> newParents =  parents.stream().map(p -> parentRepository.save(p)).toList();
-        return  newParents;
-
+        List<StudentParent> newParents =  parents.stream().map(p -> parentRepository.save(p)).toList();
+        StudentParentRequest str = new StudentParentRequest();
+        str.setStudent(saved);
+        str.setParents(newParents);
+        return  str;
     }
 
-    private ParentList mapToParent(ParentList parent, Student student) {
-        return ParentList.builder()
+    private StudentParent mapToParent(StudentParent parent, Student student) {
+        return StudentParent.builder()
                 .parentId(parent.getParentId())
-                .student(student)
+                .studentId(student.getId())
                 .build();
-    }
-
-
-    private void setStudentUpdate(Student student, StudentRequest request) {
-        if (request.getFirstName() != null) {
-            student.setFirstName(request.getFirstName());
-        }
-
-        if (request.getLastName() != null) {
-            student.setLastName(request.getLastName());
-        }
-
-        if (request.getPhone() != null) {
-            student.setPhone(request.getPhone());
-        }
-
-        if (request.getEmail() != null) {
-            student.setEmail(request.getEmail());
-        }
-
-        if (request.getRole() != null) {
-            student.setRole(Role.STUDENT);
-        }
     }
 }

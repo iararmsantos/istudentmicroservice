@@ -1,23 +1,20 @@
 package com.iarasantos.studentservice.service;
 
-import com.iarasantos.studentservice.dto.StudentParentRequest;
-import com.iarasantos.studentservice.dto.StudentRequest;
-import com.iarasantos.studentservice.model.ParentList;
+import com.iarasantos.studentservice.data.vo.v1.StudentParentRequest;
+import com.iarasantos.studentservice.data.vo.v1.StudentVO;
 import com.iarasantos.studentservice.model.Student;
 import java.util.List;
 
 public interface StudentService {
-    public Student createStudent(Student student);
+    public StudentVO createStudent(StudentVO student);
 
-    public List<Student> getStudents();
+    public List<StudentVO> getStudents();
 
-    public Student getStudentById(Long studentId);
+    public StudentVO getStudentById(Long studentId);
 
     public void deleteStudent(Long studentId);
 
-    public void updateStudent(Student student, StudentRequest request);
+    public StudentVO updateStudent(StudentVO request);
 
-    public void validateStudent(String studentId);
-
-    public List<ParentList> createStudentWithParents(StudentParentRequest studentParentRequest);
+    public StudentParentRequest createStudentWithParents(StudentParentRequest studentParentRequest);
 }

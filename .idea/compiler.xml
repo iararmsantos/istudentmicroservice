@@ -10,6 +10,7 @@
         <module name="login-service" />
         <module name="course-service" />
         <module name="teacher-service" />
+        <module name="utilcommon" />
         <module name="gateway-service" />
         <module name="student-service" />
         <module name="grade-service" />
@@ -28,6 +29,7 @@
       <module name="parent-service" options="-parameters" />
       <module name="student-service" options="-parameters" />
       <module name="teacher-service" options="-parameters" />
+      <module name="utilcommon" options="-parameters" />
     </option>
   </component>
 </project>

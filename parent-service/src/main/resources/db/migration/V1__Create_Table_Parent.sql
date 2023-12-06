@@ -1,3 +1,5 @@
+CREATE DATABASE IF NOT EXISTS `parent_service` /*!40100 COLLATE 'utf8mb4_unicode_ci' */;
+
 CREATE TABLE `parent` (
   `id` bigint(20) NOT NULL,
   `creation_date` datetime(6) DEFAULT NULL,
