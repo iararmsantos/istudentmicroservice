@@ -1,5 +1,6 @@
 package com.iarasantos.courseservice.controller;
 
+import com.iarasantos.common.utilcommon.util.MediaType;
 import com.iarasantos.courseservice.data.vo.v1.CourseVO;
 import com.iarasantos.courseservice.service.CourseService;
 import jakarta.validation.Valid;
@@ -15,27 +16,40 @@ public class CourseController {
     @Autowired
     private CourseService service;
 
-    @GetMapping
+    @GetMapping(
+            produces = {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
+                    MediaType.APPLICATION_YML})
     public List<CourseVO> getCourses() {
         return service.getCourses();
     }
 
-    @PostMapping
+    @PostMapping(
+            produces = {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
+                    MediaType.APPLICATION_YML},
+            consumes = {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
+                    MediaType.APPLICATION_YML})
     public CourseVO createCourse(@Valid @RequestBody CourseVO course) {
         return service.createCourse(course);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(value = "/{id}",
+            produces = {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
+                    MediaType.APPLICATION_YML})
     public CourseVO getCourse(@PathVariable("id") Long courseId) {
         return service.getCourseById(courseId);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping(value = "/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCourse(@PathVariable("id") Long courseId) {
         service.deleteCourse(courseId);
     }
 
-    @PutMapping
+    @PutMapping(
+            produces = {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
+                    MediaType.APPLICATION_YML},
+            consumes = {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
+                    MediaType.APPLICATION_YML})
     @ResponseStatus(HttpStatus.OK)
     public CourseVO updateCourse(@RequestBody CourseVO request) {
 

@@ -26,9 +26,8 @@ function App() {
             <TopBar />
             <Routes>
               <Route path="/" element={<Dashboard />} />
-              <Route path="students" element={<Students />} >
-                <Route path="/create" element={<CreateStudent />} />
-              </Route>
+              <Route path="/students" element={<Students />} />
+              <Route path="create-student" element={<CreateStudent />} />
               <Route path="teachers" element={<Teachers />} />
               <Route path="courses" element={<Courses />} />
               <Route path="grades" element={<Grades />} />

@@ -1,8 +1,10 @@
 package com.iarasantos.teacherservice.service;
 
+import com.iarasantos.common.utilcommon.mapper.DozerMapper;
+import com.iarasantos.teacherservice.data.vo.v1.TeacherVO;
+import com.iarasantos.teacherservice.exceptions.ResourceNotFoundException;
 import com.iarasantos.teacherservice.model.Role;
 import com.iarasantos.teacherservice.model.Teacher;
-import com.iarasantos.teacherservice.model.UpdateTeacherRequest;
 import com.iarasantos.teacherservice.repository.TeacherRepository;
 import java.util.Date;
 import java.util.List;
@@ -12,26 +14,35 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
-public class TeacherServiceImpl implements TeacherService{
+public class TeacherServiceImpl implements TeacherService {
 
     @Autowired
     private TeacherRepository repository;
 
     @Override
-    public Teacher create(Teacher teacher) {
-        teacher.setRole(Role.TEACHER);
-        teacher.setCreationDate(new Date());
-        return repository.save(teacher);
+    public TeacherVO create(TeacherVO request) {
+        Teacher teacher = Teacher.builder()
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .email(request.getEmail())
+                .phone(request.getPhone())
+                .role(Role.TEACHER)
+                .creationDate(new Date())
+                .build();
+        return DozerMapper.parseObject(repository.save(teacher), TeacherVO.class);
     }
 
     @Override
-    public List<Teacher> getTeachers() {
-        return (List<Teacher>) repository.findAll();
+    public List<TeacherVO> getTeachers() {
+        return DozerMapper.parseListObjects(repository.findAll(), TeacherVO.class);
     }
 
     @Override
-    public Teacher getTeacherById(long teacherId) {
-        return repository.findTeacherById(teacherId);
+    public TeacherVO getTeacherById(long teacherId) {
+        Teacher teacher = repository.findById(teacherId).orElseThrow(
+                () -> new ResourceNotFoundException("Teacher with id "
+                        + teacherId + " not found."));
+        return DozerMapper.parseObject(teacher, TeacherVO.class);
     }
 
     @Override
@@ -40,30 +51,17 @@ public class TeacherServiceImpl implements TeacherService{
     }
 
     @Override
-    public void updateTeacher(Teacher teacher, UpdateTeacherRequest request) {
-        setTeacherUpdate(teacher, request);
-        repository.save(teacher);
+    public TeacherVO updateTeacher(TeacherVO request) {
+        Teacher teacher = repository.findById(request.getId()).orElseThrow(
+                () -> new ResourceNotFoundException("Teacher with id "
+                        + request.getId() + " not found."));
+        teacher.setFirstName(request.getFirstName());
+        teacher.setLastName(request.getLastName());
+        teacher.setPhone(request.getPhone());
+        teacher.setEmail(request.getEmail());
+        teacher.setRole(Role.TEACHER);
+
+        return DozerMapper.parseObject(repository.save(teacher), TeacherVO.class);
     }
 
-    private void setTeacherUpdate(Teacher teacher, UpdateTeacherRequest request) {
-        if (request.getFirstName() != null) {
-            teacher.setFirstName(request.getFirstName());
-        }
-
-        if (request.getLastName() != null) {
-            teacher.setLastName(request.getLastName());
-        }
-
-        if (request.getPhone() != null) {
-            teacher.setPhone(request.getPhone());
-        }
-
-        if (request.getEmail() != null) {
-            teacher.setEmail(request.getEmail());
-        }
-
-        if (request.getRole() != null) {
-            teacher.setRole(Role.TEACHER);
-        }
-    }
 }

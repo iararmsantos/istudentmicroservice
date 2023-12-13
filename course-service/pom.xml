@@ -91,12 +91,6 @@
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-core</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.iarasantos.common</groupId>
-			<artifactId>utilcommon</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-			<scope>test</scope>
-		</dependency>
         <dependency>
             <groupId>com.iarasantos.common</groupId>
             <artifactId>utilcommon</artifactId>

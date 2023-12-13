@@ -1,10 +1,9 @@
 package com.iarasantos.studentservice.controller;
 
+import com.iarasantos.common.utilcommon.util.MediaType;
 import com.iarasantos.studentservice.data.vo.v1.StudentParentRequest;
-import com.iarasantos.studentservice.data.vo.v1.StudentVO;
 import com.iarasantos.studentservice.service.StudentParentsService;
 import com.iarasantos.studentservice.service.StudentService;
-import com.iarasantos.studentservice.util.MediaType;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -44,7 +43,7 @@ public class StudentParentController {
 //    @ResponseStatus(HttpStatus.OK)
 //    public StudentVO getStudent(@PathVariable("id") Long studentId) {
 //        return service.getStudentById(studentId);
-//        //TODO: get studentParent the  return will StudentParentRequest
+//        //TODO: get studentParent the  return  will be StudentParentRequest
 //    }
 
     @DeleteMapping(value = "/{id}")

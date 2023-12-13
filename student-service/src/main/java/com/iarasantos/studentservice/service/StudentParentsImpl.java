@@ -1,9 +1,7 @@
 package com.iarasantos.studentservice.service;
 
 import com.iarasantos.studentservice.data.vo.v1.StudentParentRequest;
-import com.iarasantos.studentservice.data.vo.v1.StudentVO;
 import com.iarasantos.studentservice.exceptions.ResourceNotFoundException;
-import com.iarasantos.studentservice.mapper.DozerMapper;
 import com.iarasantos.studentservice.model.Role;
 import com.iarasantos.studentservice.model.Student;
 import com.iarasantos.studentservice.model.StudentParent;

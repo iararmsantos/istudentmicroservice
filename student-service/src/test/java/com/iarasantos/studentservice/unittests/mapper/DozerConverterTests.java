@@ -3,8 +3,8 @@ package com.iarasantos.studentservice.unittests.mapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.iarasantos.common.utilcommon.mapper.DozerMapper;
 import com.iarasantos.studentservice.data.vo.v1.StudentVO;
-import com.iarasantos.studentservice.mapper.DozerMapper;
 import com.iarasantos.studentservice.model.Role;
 import com.iarasantos.studentservice.model.Student;
 import com.iarasantos.studentservice.unittests.mapper.mocks.MockStudent;

@@ -2,7 +2,6 @@ package com.iarasantos.loginservice.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.iarasantos.loginservice.constants.AppConstants;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -18,6 +17,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import com.iarasantos.common.utilcommon.constants.AppConstant;
 
 @Data
 @NoArgsConstructor
@@ -34,26 +34,24 @@ public class User {
     @Column(length = 30)
     @NotEmpty(message = "First name cannot be null or empty")
     private String firstName;
+
     @JsonProperty("last_name")
     @Column(length = 30)
     @NotEmpty(message = "Last name cannot be null or empty")
     private String lastName;
+
     private String phone;
-    @Pattern(regexp = AppConstants.EMAIL_REGEXPR, message = "Email must be valid.")
+
+    @Pattern(regexp = AppConstant.EMAIL_REGEXPR, message = "Email must be valid.")
     private String email;
+
     @Enumerated(EnumType.STRING)
     private Role role;
+
     @Column(length = 30)
     private String password;
+
     @CreationTimestamp
     @JsonProperty("creation_date")
     private Date creationDate;
-
-    public User(String firstName, String lastName, String phone, String email, Role role) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.phone = phone;
-        this.email = email;
-        this.role = role;
-    }
 }

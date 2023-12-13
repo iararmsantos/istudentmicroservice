@@ -1,14 +1,17 @@
 package com.iarasantos.teacherservice.service;
 
-import com.iarasantos.teacherservice.model.Teacher;
-import com.iarasantos.teacherservice.model.UpdateTeacherRequest;
+import com.iarasantos.teacherservice.data.vo.v1.TeacherVO;
 import java.util.List;
 
 public interface TeacherService {
-    public Teacher create(Teacher teacher);
-    public List<Teacher> getTeachers();
-    public Teacher getTeacherById(long teacherId);
+    public TeacherVO create(TeacherVO teacher);
+
+    public List<TeacherVO> getTeachers();
+
+    public TeacherVO getTeacherById(long teacherId);
+
     public void deleteTeacher(Long teacherId);
-    public void updateTeacher(Teacher teacher, UpdateTeacherRequest request);
+
+    public TeacherVO updateTeacher(TeacherVO request);
 
 }

@@ -1,9 +1,6 @@
 package com.iarasantos.gradeservice.service;
 
-import com.iarasantos.gradeservice.data.vo.v1.GradeResponse;
 import com.iarasantos.gradeservice.data.vo.v1.GradeVO;
-import com.iarasantos.gradeservice.model.Grade;
-import com.iarasantos.gradeservice.data.vo.v1.GradeRequest;
 import java.util.List;
 
 public interface GradeService {

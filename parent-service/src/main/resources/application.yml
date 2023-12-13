@@ -19,8 +19,8 @@ spring:
     hibernate:
       ddl-auto: update
 
-#  flyway:
-#    url: jdbc:mysql://localhost:3310
-#    schemas: parent-service
-#    user: root
-#    password: root
+  flyway:
+    url: jdbc:mysql://localhost:3306
+    schemas: parent_service
+    user: root
+    password: root

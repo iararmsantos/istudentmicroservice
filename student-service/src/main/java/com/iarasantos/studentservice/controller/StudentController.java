@@ -1,5 +1,6 @@
 package com.iarasantos.studentservice.controller;
 
+import com.iarasantos.common.utilcommon.util.MediaType;
 import com.iarasantos.studentservice.data.vo.v1.StudentParentRequest;
 import com.iarasantos.studentservice.data.vo.v1.StudentVO;
 import com.iarasantos.studentservice.service.StudentService;
@@ -7,7 +8,6 @@ import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import com.iarasantos.studentservice.util.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

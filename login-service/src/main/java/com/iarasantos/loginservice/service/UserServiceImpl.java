@@ -1,7 +1,9 @@
 package com.iarasantos.loginservice.service;
 
-import com.iarasantos.loginservice.dto.UserRequest;
-import com.iarasantos.loginservice.dto.UserResponse;
+
+import com.iarasantos.common.utilcommon.mapper.DozerMapper;
+import com.iarasantos.loginservice.data.vo.v1.UserVO;
+import com.iarasantos.loginservice.exceptions.ResourceNotFoundException;
 import com.iarasantos.loginservice.model.User;
 import com.iarasantos.loginservice.repository.UserRepository;
 import java.util.Date;
@@ -12,35 +14,27 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository repository;
+
     @Override
-    public List<UserResponse> getUsers() {
+    public List<UserVO> getUsers() {
         List<User> users = repository.findAll();
-        return users.stream().map(user -> mapToUserResponse(user)).toList();
-    }
+        return DozerMapper.parseListObjects(users, UserVO.class);
 
-    private UserResponse mapToUserResponse(User user) {
-        return UserResponse.builder()
-                .id(user.getId())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .phone(user.getPhone())
-                .email(user.getEmail())
-                .role(user.getRole())
-                .creationDate(user.getCreationDate())
-                .build();
     }
 
     @Override
-    public User getUser(Long userId) {
-        return repository.findUserById(userId);
+    public UserVO getUser(Long userId) {
+        User user = repository.findById(userId).orElseThrow(
+                () -> new ResourceNotFoundException("Student with id " + userId + " not found!"));
+        return DozerMapper.parseObject(user, UserVO.class);
     }
 
     @Override
-    public void createUser(UserRequest request) {
+    public UserVO createUser(UserVO request) {
         User user = User.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
@@ -49,7 +43,7 @@ public class UserServiceImpl implements UserService{
                 .role(request.getRole())
                 .build();
         user.setCreationDate(new Date());
-        repository.save(user);
+        return DozerMapper.parseObject(repository.save(user), UserVO.class);
     }
 
     @Override
@@ -58,26 +52,15 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public void updateUser(User user, UserRequest request) {
-        setUpdate(user, request);
-        repository.save(user);
-    }
+    public UserVO updateUser(UserVO request) {
+        User user = repository.findById(request.getId()).orElseThrow(
+                () -> new ResourceNotFoundException("Student with id " + request.getId() + " not found!"));
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setPhone(request.getPhone());
+        user.setEmail(request.getEmail());
+        user.setRole(request.getRole());
 
-    public void setUpdate(User user, UserRequest request) {
-        if(request.getFirstName() != null) {
-            user.setFirstName(request.getFirstName());
-        }
-        if(request.getLastName() != null) {
-            user.setLastName(request.getLastName());
-        }
-        if(request.getPhone() != null) {
-            user.setPhone(request.getPhone());
-        }
-        if(request.getEmail() != null) {
-            user.setEmail(request.getEmail());
-        }
-        if(request.getRole() != null) {
-            user.setRole(request.getRole());
-        }
+        return DozerMapper.parseObject(repository.save(user), UserVO.class);
     }
 }

@@ -2,7 +2,7 @@ package com.iarasantos.studentservice.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.iarasantos.studentservice.constants.AppConstant;
+import com.iarasantos.common.utilcommon.constants.AppConstant;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
