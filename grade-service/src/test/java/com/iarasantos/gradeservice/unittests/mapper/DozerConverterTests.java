@@ -1,11 +1,11 @@
-package com.iarasantos.gradeservice.mapper;
+package com.iarasantos.gradeservice.unittests.mapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.iarasantos.common.utilcommon.mapper.DozerMapper;
 import com.iarasantos.gradeservice.data.vo.v1.GradeVO;
-import com.iarasantos.gradeservice.mapper.mocks.MockGrade;
+import com.iarasantos.gradeservice.unittests.mapper.mocks.MockGrade;
 import com.iarasantos.gradeservice.model.Grade;
 import java.util.Date;
 import java.util.List;
@@ -24,7 +24,7 @@ public class DozerConverterTests {
     @Test
     public void parseEntityToVOTest() {
         GradeVO output = DozerMapper.parseObject(inputObject.mockEntity(), GradeVO.class);
-        assertEquals(Long.valueOf(0), output.getId());
+        assertEquals(Long.valueOf(0), output.getKey());
         assertEquals("A", output.getLetterGrade());
         assertEquals(Double.valueOf(0), output.getNumberGrade());
         assertEquals(Long.valueOf(0), output.getStudentId());
@@ -38,7 +38,7 @@ public class DozerConverterTests {
         List<GradeVO> outputList = DozerMapper.parseListObjects(inputObject.mockEntityList(), GradeVO.class);
         GradeVO outputZero = outputList.get(0);
 
-        assertEquals(Long.valueOf(0L), outputZero.getId());
+        assertEquals(Long.valueOf(0L), outputZero.getKey());
         assertEquals("A", outputZero.getLetterGrade());
         assertEquals(Double.valueOf(0), outputZero.getNumberGrade());
         assertEquals(Long.valueOf(0), outputZero.getStudentId());
@@ -47,7 +47,7 @@ public class DozerConverterTests {
 
         GradeVO outputSeven = outputList.get(7);
 
-        assertEquals(Long.valueOf(7L), outputSeven.getId());
+        assertEquals(Long.valueOf(7L), outputSeven.getKey());
         assertEquals("A", outputSeven.getLetterGrade());
         assertEquals(Double.valueOf(7), outputSeven.getNumberGrade());
         assertEquals(Long.valueOf(7), outputSeven.getStudentId());
@@ -56,7 +56,7 @@ public class DozerConverterTests {
 
         GradeVO outputTwelve = outputList.get(12);
 
-        assertEquals(Long.valueOf(12), outputTwelve.getId());
+        assertEquals(Long.valueOf(12), outputTwelve.getKey());
         assertEquals("A", outputTwelve.getLetterGrade());
         assertEquals(Double.valueOf(12), outputTwelve.getNumberGrade());
         assertEquals(Long.valueOf(12), outputTwelve.getStudentId());

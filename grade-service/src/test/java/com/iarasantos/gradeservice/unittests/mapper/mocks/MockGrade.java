@@ -1,4 +1,4 @@
-package com.iarasantos.gradeservice.mapper.mocks;
+package com.iarasantos.gradeservice.unittests.mapper.mocks;
 
 import com.iarasantos.gradeservice.data.vo.v1.GradeVO;
 import com.iarasantos.gradeservice.model.Grade;
@@ -47,7 +47,7 @@ public class MockGrade {
 
     public GradeVO mockVO(Integer number) {
         GradeVO grade = new GradeVO();
-        grade.setId(Long.valueOf(number));
+        grade.setKey(Long.valueOf(number));
         grade.setLetterGrade("A");
         grade.setNumberGrade(Double.valueOf(number));
         grade.setStudentId(Long.valueOf(number));

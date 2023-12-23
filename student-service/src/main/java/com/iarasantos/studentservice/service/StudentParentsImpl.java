@@ -28,7 +28,7 @@ public class StudentParentsImpl implements StudentParentsService {
         Student student = repository.findById(studentId).orElseThrow(
                 () -> new ResourceNotFoundException("Student with id " + studentId + " not found!"));
 
-        parentRepository.deleteByStudentId(student.getId());
+        parentRepository.deleteById(student.getId());
     }
 
     @Override

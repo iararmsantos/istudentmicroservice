@@ -1,7 +1,12 @@
 package com.iarasantos.teacherservice.service;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 import com.iarasantos.common.utilcommon.mapper.DozerMapper;
+import com.iarasantos.teacherservice.controller.TeacherController;
 import com.iarasantos.teacherservice.data.vo.v1.TeacherVO;
+import com.iarasantos.teacherservice.exceptions.RequiredObjectIsNullException;
 import com.iarasantos.teacherservice.exceptions.ResourceNotFoundException;
 import com.iarasantos.teacherservice.model.Role;
 import com.iarasantos.teacherservice.model.Teacher;
@@ -21,20 +26,27 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public TeacherVO create(TeacherVO request) {
-        Teacher teacher = Teacher.builder()
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .email(request.getEmail())
-                .phone(request.getPhone())
-                .role(Role.TEACHER)
-                .creationDate(new Date())
-                .build();
-        return DozerMapper.parseObject(repository.save(teacher), TeacherVO.class);
+        if(request == null) {
+            throw new RequiredObjectIsNullException();
+        }
+        Teacher teacher = DozerMapper.parseObject(request, Teacher.class);
+        TeacherVO vo = DozerMapper.parseObject(repository.save(teacher), TeacherVO.class);
+
+        vo.add(linkTo(methodOn(TeacherController.class).getTeacher(vo.getKey())).withSelfRel());
+        return vo;
     }
 
     @Override
     public List<TeacherVO> getTeachers() {
-        return DozerMapper.parseListObjects(repository.findAll(), TeacherVO.class);
+
+        List<TeacherVO> teachers = DozerMapper.parseListObjects(repository.findAll(), TeacherVO.class);
+        teachers
+                .stream()
+                .forEach(teacher
+                        -> teacher
+                        .add(linkTo(methodOn(TeacherController.class)
+                                .getTeacher(teacher.getKey())).withSelfRel()));
+        return teachers;
     }
 
     @Override
@@ -42,26 +54,38 @@ public class TeacherServiceImpl implements TeacherService {
         Teacher teacher = repository.findById(teacherId).orElseThrow(
                 () -> new ResourceNotFoundException("Teacher with id "
                         + teacherId + " not found."));
-        return DozerMapper.parseObject(teacher, TeacherVO.class);
+        TeacherVO vo = DozerMapper.parseObject(teacher, TeacherVO.class);
+
+        vo.add(linkTo(methodOn(TeacherController.class).getTeacher(vo.getKey())).withSelfRel());
+        return vo;
     }
 
     @Override
     public void deleteTeacher(Long teacherId) {
-        repository.deleteById(teacherId);
+        Teacher teacher = repository.findById(teacherId).orElseThrow(
+                () -> new ResourceNotFoundException("Teacher with id "
+                        + teacherId + " not found."));
+        repository.deleteById(teacher.getId());
     }
 
     @Override
     public TeacherVO updateTeacher(TeacherVO request) {
-        Teacher teacher = repository.findById(request.getId()).orElseThrow(
+        if(request == null) {
+            throw new RequiredObjectIsNullException();
+        }
+        Teacher teacher = repository.findById(request.getKey()).orElseThrow(
                 () -> new ResourceNotFoundException("Teacher with id "
-                        + request.getId() + " not found."));
+                        + request.getKey() + " not found."));
         teacher.setFirstName(request.getFirstName());
         teacher.setLastName(request.getLastName());
         teacher.setPhone(request.getPhone());
         teacher.setEmail(request.getEmail());
         teacher.setRole(Role.TEACHER);
 
-        return DozerMapper.parseObject(repository.save(teacher), TeacherVO.class);
+        TeacherVO vo = DozerMapper.parseObject(repository.save(teacher), TeacherVO.class);
+
+        vo.add(linkTo(methodOn(TeacherController.class).getTeacher(vo.getKey())).withSelfRel());
+        return vo;
     }
 
 }

@@ -49,7 +49,7 @@ public class MockCourse {
 
     public CourseVO mockVO(Integer number) {
         CourseVO course = new CourseVO();
-        course.setId(Long.valueOf(number));
+        course.setKey(Long.valueOf(number));
         course.setTitle("Title Test" + number);
         course.setSection(Season.FALL);
         course.setYear(number);

@@ -1,8 +1,10 @@
 package com.iarasantos.studentservice.service;
 
 import com.iarasantos.common.utilcommon.mapper.DozerMapper;
+import com.iarasantos.studentservice.controller.StudentController;
 import com.iarasantos.studentservice.data.vo.v1.StudentParentRequest;
 import com.iarasantos.studentservice.data.vo.v1.StudentVO;
+import com.iarasantos.studentservice.exceptions.RequiredObjectIsNullException;
 import com.iarasantos.studentservice.exceptions.ResourceNotFoundException;
 import com.iarasantos.studentservice.model.StudentParent;
 import com.iarasantos.studentservice.model.Role;
@@ -12,6 +14,8 @@ import com.iarasantos.studentservice.repository.StudentRepository;
 import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,22 +30,42 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public StudentVO createStudent(StudentVO student) {
+        if(student == null) {
+            throw new RequiredObjectIsNullException();
+        }
         Student std = DozerMapper.parseObject(student, Student.class);
 
         std.setCreationDate(new Date());
-        return DozerMapper.parseObject(repository.save(std), StudentVO.class);
+        StudentVO vo = DozerMapper.parseObject(repository.save(std), StudentVO.class);
+
+        //hateoas
+        vo.add(linkTo(methodOn(StudentController.class).getStudent(vo.getKey())).withSelfRel());
+
+        return vo;
     }
 
     @Override
     public List<StudentVO> getStudents() {
-        return DozerMapper.parseListObjects(repository.findAll(), StudentVO.class);
+        List<StudentVO> students = DozerMapper
+                .parseListObjects(repository.findAll(), StudentVO.class);
+
+        //hateoas
+        students
+                .stream()
+                .forEach(s -> s
+                        .add(linkTo(methodOn(StudentController.class)
+                                .getStudent(s.getKey())).withSelfRel()));
+        return students;
     }
 
     @Override
     public StudentVO getStudentById(Long studentId) {
         Student student = repository.findById(studentId).orElseThrow(
                 () -> new ResourceNotFoundException("Student with id " + studentId + " not found!"));
-        return DozerMapper.parseObject(student, StudentVO.class);
+        StudentVO vo = DozerMapper.parseObject(student, StudentVO.class);
+        //hateoas
+        vo.add(linkTo(methodOn(StudentController.class).getStudent(studentId)).withSelfRel());
+        return vo;
     }
 
     @Override
@@ -49,21 +73,29 @@ public class StudentServiceImpl implements StudentService {
         Student student = repository.findById(studentId).orElseThrow(
                 () -> new ResourceNotFoundException("Student with id " + studentId + " not found!"));
         repository.deleteById(studentId);
-        parentRepository.deleteByStudentId(student.getId());
+        parentRepository.deleteById(student.getId());
     }
 
     @Override
     public StudentVO updateStudent(StudentVO request) {
-        Student student = repository.findById(request.getId()).orElseThrow(
-                () -> new ResourceNotFoundException("Student with id " + request.getId() + " not found!"));
+        if(request == null) {
+            throw new RequiredObjectIsNullException();
+        }
+        Student student = repository.findById(request.getKey()).orElseThrow(
+                () -> new ResourceNotFoundException("Student with id " + request.getKey() + " not found!"));
 
         student.setFirstName(request.getFirstName());
         student.setLastName(request.getLastName());
         student.setPhone(request.getPhone());
         student.setEmail(request.getEmail());
-        student.setRole(request.getRole());
+        student.setRole(Role.STUDENT);
 
-        return DozerMapper.parseObject(repository.save(student), StudentVO.class);
+        StudentVO vo = DozerMapper.parseObject(repository.save(student), StudentVO.class);
+
+        //hateoas
+        vo.add(linkTo(methodOn(StudentController.class).getStudent(vo.getKey())).withSelfRel());
+
+        return vo;
     }
 
     @Override
@@ -80,6 +112,8 @@ public class StudentServiceImpl implements StudentService {
         StudentParentRequest str = new StudentParentRequest();
         str.setStudent(saved);
         str.setParents(newParents);
+
+        //TODO: implemement hateoas
         return  str;
     }
 

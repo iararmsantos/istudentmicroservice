@@ -49,7 +49,7 @@ public class MockUser {
 
     public UserVO mockVO(Integer number) {
         UserVO user = new UserVO();
-        user.setId(Long.valueOf(number));
+        user.setKey(Long.valueOf(number));
         user.setFirstName("First Name Test" + number);
         user.setLastName("Last Name Test" + number);
         user.setEmail("Email Test" + number);

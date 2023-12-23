@@ -1,7 +1,12 @@
 package com.iarasantos.gradeservice.service;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 import com.iarasantos.common.utilcommon.mapper.DozerMapper;
+import com.iarasantos.gradeservice.controller.GradeController;
 import com.iarasantos.gradeservice.data.vo.v1.GradeVO;
+import com.iarasantos.gradeservice.exception.RequiredObjectIsNullException;
 import com.iarasantos.gradeservice.exception.ResourceNotFoundException;
 import com.iarasantos.gradeservice.model.Grade;
 import com.iarasantos.gradeservice.repository.GradeRepository;
@@ -20,14 +25,28 @@ public class GradeServiceImpl implements GradeService {
 
     @Override
     public GradeVO createGrade(GradeVO request) {
+        if(request == null) {
+            throw new RequiredObjectIsNullException();
+        }
         Grade grade = DozerMapper.parseObject(request, Grade.class);
         grade.setCreationDate(new Date());
-        return DozerMapper.parseObject(repository.save(grade), GradeVO.class);
+        GradeVO vo = DozerMapper.parseObject(repository.save(grade), GradeVO.class);
+
+        vo.add(linkTo(methodOn(GradeController.class).getGrade(vo.getKey())).withSelfRel());
+        return vo;
     }
 
     @Override
     public List<GradeVO> getGrades() {
-        return DozerMapper.parseListObjects(repository.findAll(), GradeVO.class);
+        List<GradeVO> grades = DozerMapper.parseListObjects(repository.findAll(), GradeVO.class);
+
+        grades
+                .stream()
+                .forEach(grade -> grade
+                        .add(linkTo(methodOn(GradeController.class)
+                                .getGrade(grade.getKey())).withSelfRel()));
+
+        return grades;
     }
 
     @Override
@@ -35,22 +54,34 @@ public class GradeServiceImpl implements GradeService {
         Grade grade = repository.findById(gradeId).orElseThrow(
                 () -> new ResourceNotFoundException("Student with id " + gradeId + " not found!"));
 
-        return DozerMapper.parseObject(grade, GradeVO.class);
+        GradeVO vo = DozerMapper.parseObject(grade, GradeVO.class);
+
+        vo.add(linkTo(methodOn(GradeController.class).getGrade(vo.getKey())).withSelfRel());
+        return vo;
     }
 
     @Override
     public void deleteGrade(long gradeId) {
-        repository.deleteGradeById(gradeId);
+        Grade grade = repository.findById(gradeId).orElseThrow(
+                () -> new ResourceNotFoundException("Student with id " + gradeId + " not found!"));
+        repository.deleteById(grade.getId());
     }
 
     @Override
     public GradeVO updateGrade(GradeVO request) {
-        Grade grade = repository.findById(request.getId()).orElseThrow(
-                () -> new ResourceNotFoundException("Student with id " + request.getId() + " not found!"));
+        if(request == null) {
+            throw new RequiredObjectIsNullException();
+        }
+        Grade grade = repository.findById(request.getKey()).orElseThrow(
+                () -> new ResourceNotFoundException("Student with id " + request.getKey() + " not found!"));
         grade.setLetterGrade(request.getLetterGrade());
         grade.setNumberGrade(request.getNumberGrade());
         grade.setStudentId(request.getStudentId());
         grade.setCourseId(request.getCourseId());
-        return DozerMapper.parseObject(repository.save(grade), GradeVO.class);
+        GradeVO vo = DozerMapper.parseObject(repository.save(grade), GradeVO.class);
+
+        vo.add(linkTo(methodOn(GradeController.class).getGrade(vo.getKey())).withSelfRel());
+
+        return vo;
     }
 }

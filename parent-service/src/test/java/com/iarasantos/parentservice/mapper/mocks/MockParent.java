@@ -49,7 +49,7 @@ public class MockParent {
 
     public ParentVO mockVO(Integer number) {
         ParentVO parent = new ParentVO();
-        parent.setId(Long.valueOf(number));
+        parent.setKey(Long.valueOf(number));
         parent.setFirstName("First Name Test" + number);
         parent.setLastName("Last Name Test" + number);
         parent.setEmail("Email Test" + number);

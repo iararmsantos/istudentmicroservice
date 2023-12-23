@@ -49,7 +49,7 @@ public class MockTeacher {
 
     public TeacherVO mockVO(Integer number) {
         TeacherVO teacher = new TeacherVO();
-        teacher.setId(Long.valueOf(number));
+        teacher.setKey(Long.valueOf(number));
         teacher.setFirstName("First Name Test" + number);
         teacher.setLastName("Last Name Test" + number);
         teacher.setEmail("Email Test" + number);

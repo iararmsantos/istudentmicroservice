@@ -24,3 +24,10 @@ spring:
     schemas: student_service
     user: root
     password: root
+
+#swagger paths definitions
+spring-doc:
+  pathsToMatch: /api/**
+  swagger-ui:
+    use-root-path: true
+

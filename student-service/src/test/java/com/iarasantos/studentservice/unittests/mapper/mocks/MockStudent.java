@@ -35,7 +35,7 @@ public class MockStudent {
 
     public Student mockEntity(Integer number) {
         Student student = new Student();
-        student.setId(Long.valueOf(number));
+        student.setId(number.longValue());
         student.setFirstName("First Name Test" + number);
         student.setLastName("Last Name Test" + number);
         student.setEmail("Email Test" + number);
@@ -49,7 +49,7 @@ public class MockStudent {
 
     public StudentVO mockVO(Integer number) {
         StudentVO student = new StudentVO();
-        student.setId(Long.valueOf(number));
+        student.setKey(number.longValue());
         student.setFirstName("First Name Test" + number);
         student.setLastName("Last Name Test" + number);
         student.setEmail("Email Test" + number);

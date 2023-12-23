@@ -1,7 +1,12 @@
 package com.iarasantos.parentservice.service;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 import com.iarasantos.common.utilcommon.mapper.DozerMapper;
+import com.iarasantos.parentservice.controller.ParentController;
 import com.iarasantos.parentservice.data.vo.v1.ParentVO;
+import com.iarasantos.parentservice.exceptions.RequiredObjectIsNullException;
 import com.iarasantos.parentservice.exceptions.ResourceNotFoundException;
 import com.iarasantos.parentservice.model.Parent;
 import com.iarasantos.parentservice.repository.ParentRepository;
@@ -19,8 +24,14 @@ public class ParentServiceImpl implements ParentService {
 
     @Override
     public List<ParentVO> getParents() {
-        List<Parent> parents = repository.findAll();
-        return DozerMapper.parseListObjects(parents, ParentVO.class);
+        List<ParentVO> parents = DozerMapper
+                .parseListObjects(repository.findAll(), ParentVO.class);
+        parents
+                .stream()
+                .forEach(parent -> parent
+                        .add(linkTo(methodOn(ParentController.class)
+                                .getParent(parent.getKey())).withSelfRel()));
+        return parents;
 
     }
 
@@ -28,37 +39,51 @@ public class ParentServiceImpl implements ParentService {
     public ParentVO getParentById(Long parentId) {
         Parent parent = repository.findById(parentId).orElseThrow(
                 () -> new ResourceNotFoundException("Student with id " + parentId + " not found!"));
-        return DozerMapper.parseObject(parent, ParentVO.class);
+        ParentVO vo = DozerMapper.parseObject(parent, ParentVO.class);
+
+        vo.add(linkTo(methodOn(ParentController.class).getParent(vo.getKey())).withSelfRel());
+
+        return vo;
     }
 
     @Override
     public ParentVO createParent(ParentVO request) {
-        Parent parent = Parent.builder()
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .phone(request.getPhone())
-                .email(request.getEmail())
-                .role(request.getRole())
-                .build();
+        if(request == null) {
+            throw new RequiredObjectIsNullException();
+        }
+
+        Parent parent = DozerMapper.parseObject(request, Parent.class);
         parent.setCreationDate(new Date());
-        return DozerMapper.parseObject(repository.save(parent), ParentVO.class);
+        ParentVO vo = DozerMapper.parseObject(repository.save(parent), ParentVO.class);
+
+        vo.add(linkTo(methodOn(ParentController.class).getParent(vo.getKey())).withSelfRel());
+        return vo;
     }
 
     @Override
     public void deleteParent(Long parentId) {
-        repository.deleteById(parentId);
+        Parent parent = repository.findById(parentId).orElseThrow(
+                () -> new ResourceNotFoundException("Student with id " + parentId + " not found!"));
+        repository.deleteById(parent.getId());
     }
 
     @Override
     public ParentVO updateParent(ParentVO request) {
-        Parent Parent = repository.findById(request.getId()).orElseThrow(
-                () -> new ResourceNotFoundException("Student with id " + request.getId() + " not found!"));
-        Parent.setFirstName(request.getFirstName());
-        Parent.setLastName(request.getLastName());
-        Parent.setPhone(request.getPhone());
-        Parent.setEmail(request.getEmail());
-        Parent.setRole(request.getRole());
+        if(request == null) {
+            throw new RequiredObjectIsNullException();
+        }
+        Parent parent = repository.findById(request.getKey()).orElseThrow(
+                () -> new ResourceNotFoundException("Student with id " + request.getKey() + " not found!"));
+        parent.setFirstName(request.getFirstName());
+        parent.setLastName(request.getLastName());
+        parent.setPhone(request.getPhone());
+        parent.setEmail(request.getEmail());
+        parent.setRole(request.getRole());
 
-        return DozerMapper.parseObject(repository.save(Parent), ParentVO.class);
+        ParentVO vo = DozerMapper.parseObject(repository.save(parent), ParentVO.class);
+
+        vo.add(linkTo(methodOn(ParentController.class).getParent(vo.getKey())).withSelfRel());
+
+        return vo;
     }
 }

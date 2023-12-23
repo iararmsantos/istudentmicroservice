@@ -1,18 +1,24 @@
 package com.iarasantos.studentservice.data.vo.v1;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.dozermapper.core.Mapping;
+import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.hateoas.RepresentationModel;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class StudentParentVO {
+public class StudentParentVO extends RepresentationModel<StudentParentVO> implements Serializable {
 
-    private Long id;
+    private static final long serialVersionUID = 1L;
+
+    @Mapping("id")
+    private Long key;
 
     @JsonProperty("parent_id")
     private Long parentId;

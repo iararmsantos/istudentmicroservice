@@ -6,7 +6,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface GradeRepository extends JpaRepository<Grade, Long> {
-    Grade findGradeById(Long gradeId);
-
-    void deleteGradeById(Long gradeId);
 }

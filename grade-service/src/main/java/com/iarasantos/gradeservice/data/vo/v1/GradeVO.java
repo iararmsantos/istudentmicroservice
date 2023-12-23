@@ -1,25 +1,27 @@
 package com.iarasantos.gradeservice.data.vo.v1;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.github.dozermapper.core.Mapping;
+import java.io.Serializable;
 import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.hateoas.RepresentationModel;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class GradeVO {
+@JsonPropertyOrder({"key", "letter_grade", "number_grade", "student_id", "course_id", "creation_date"})
+public class GradeVO extends RepresentationModel<GradeVO> implements Serializable {
+    private static final long serialVersionUID = 1L;
 
-    private Long id;
+    @Mapping("id")
+    @JsonProperty("id")
+    private Long key;
 
     @JsonProperty("letter_grade")
     private String letterGrade;

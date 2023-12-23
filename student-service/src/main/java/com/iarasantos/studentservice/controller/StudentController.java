@@ -4,6 +4,12 @@ import com.iarasantos.common.utilcommon.util.MediaType;
 import com.iarasantos.studentservice.data.vo.v1.StudentParentRequest;
 import com.iarasantos.studentservice.data.vo.v1.StudentVO;
 import com.iarasantos.studentservice.service.StudentService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/students")
+@Tag(name = "Students", description = "Endpoints to manage students")
 public class StudentController {
     @Autowired
     private StudentService service;
@@ -27,6 +34,26 @@ public class StudentController {
     @GetMapping(
             produces = {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
                     MediaType.APPLICATION_YML})
+    @Operation(summary = "Find all students", description = "Find all students",
+            tags = {"Students"},
+            responses = {
+                    @ApiResponse(description = "Success", responseCode = "200",
+                            content = {
+                                    @Content(
+                                            mediaType = "application/json",
+                                            array = @ArraySchema(
+                                                    schema = @Schema(implementation = StudentVO.class))
+                                    )
+                            }),
+                    @ApiResponse(description = "Bad request", responseCode = "400",
+                            content = @Content),
+                    @ApiResponse(description = "Unauthorized", responseCode = "401",
+                            content = @Content),
+                    @ApiResponse(description = "Not Found", responseCode = "404",
+                            content = @Content),
+                    @ApiResponse(description = "Internal Server Error", responseCode = "500",
+                            content = @Content)
+            })
     public List<StudentVO> getStudents() {
         //TODO: get studentparents then the return will be StudentParentRequest
         return service.getStudents();
@@ -37,6 +64,21 @@ public class StudentController {
                     MediaType.APPLICATION_YML},
             consumes = {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
                     MediaType.APPLICATION_YML})
+    @Operation(summary = "Create a student",
+            description = "Create student by passing in a JSON, XML, or YAML representation of a student",
+            tags = {"Students"},
+            responses = {
+                    @ApiResponse(description = "Success", responseCode = "200",
+                            content = @Content(
+                                    schema = @Schema(implementation = StudentVO.class))
+                    ),
+                    @ApiResponse(description = "Bad request", responseCode = "400",
+                            content = @Content),
+                    @ApiResponse(description = "Unauthorized", responseCode = "401",
+                            content = @Content),
+                    @ApiResponse(description = "Internal Server Error", responseCode = "500",
+                            content = @Content)
+            })
     public StudentVO createStudent(@Valid @RequestBody StudentVO student) {
         return service.createStudent(student);
     }
@@ -47,6 +89,25 @@ public class StudentController {
                     MediaType.APPLICATION_YML},
             consumes = {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
                     MediaType.APPLICATION_YML})
+    @Operation(summary = "Create a student with parents",
+            description = "Create a student with parents by passing in a JSON, XML, or YAML representation of a student",
+            tags = {"Students"},
+            responses = {
+                    @ApiResponse(description = "Success", responseCode = "200",
+                            content = @Content(
+                                    schema = @Schema(implementation = StudentVO.class))
+                    ),
+                    @ApiResponse(description = "No Content", responseCode = "204",
+                            content = @Content),
+                    @ApiResponse(description = "Bad request", responseCode = "400",
+                            content = @Content),
+                    @ApiResponse(description = "Unauthorized", responseCode = "401",
+                            content = @Content),
+                    @ApiResponse(description = "Not Found", responseCode = "404",
+                            content = @Content),
+                    @ApiResponse(description = "Internal Server Error", responseCode = "500",
+                            content = @Content)
+            })
     public StudentParentRequest createStudentWithParents(
             @Valid @RequestBody StudentParentRequest studentParentRequest) {
         return service.createStudentWithParents(studentParentRequest);
@@ -54,8 +115,26 @@ public class StudentController {
 
     @GetMapping(value = "/{id}",
             produces = {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
-            MediaType.APPLICATION_YML})
+                    MediaType.APPLICATION_YML})
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Find one student", description = "Find one student",
+            tags = {"Students"},
+            responses = {
+                    @ApiResponse(description = "Success", responseCode = "200",
+                            content = @Content(
+                                    schema = @Schema(implementation = StudentVO.class))
+                    ),
+                    @ApiResponse(description = "No Content", responseCode = "204",
+                            content = @Content),
+                    @ApiResponse(description = "Bad request", responseCode = "400",
+                            content = @Content),
+                    @ApiResponse(description = "Unauthorized", responseCode = "401",
+                            content = @Content),
+                    @ApiResponse(description = "Not Found", responseCode = "404",
+                            content = @Content),
+                    @ApiResponse(description = "Internal Server Error", responseCode = "500",
+                            content = @Content)
+            })
     public StudentVO getStudent(@PathVariable("id") Long studentId) {
         return service.getStudentById(studentId);
         //TODO: get studentParent the  return will StudentParentRequest
@@ -63,6 +142,20 @@ public class StudentController {
 
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Delete one student", description = "Delete one student",
+            tags = {"Students"},
+            responses = {
+                    @ApiResponse(description = "No Content", responseCode = "204",
+                            content = @Content),
+                    @ApiResponse(description = "Bad request", responseCode = "400",
+                            content = @Content),
+                    @ApiResponse(description = "Unauthorized", responseCode = "401",
+                            content = @Content),
+                    @ApiResponse(description = "Not Found", responseCode = "404",
+                            content = @Content),
+                    @ApiResponse(description = "Internal Server Error", responseCode = "500",
+                            content = @Content)
+            })
     public void deleteStudent(@PathVariable("id") Long studentId) {
         service.deleteStudent(studentId);
         //TODO: have to delete parent
@@ -74,6 +167,23 @@ public class StudentController {
             consumes = {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
                     MediaType.APPLICATION_YML})
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Update one student",
+            description = "Update one student by passing in a JSON, XML, or YAML representation of a student",
+            tags = {"Students"},
+            responses = {
+                    @ApiResponse(description = "Success", responseCode = "200",
+                            content = @Content(
+                                    schema = @Schema(implementation = StudentVO.class))
+                    ),
+                    @ApiResponse(description = "Bad request", responseCode = "400",
+                            content = @Content),
+                    @ApiResponse(description = "Unauthorized", responseCode = "401",
+                            content = @Content),
+                    @ApiResponse(description = "Not Found", responseCode = "404",
+                            content = @Content),
+                    @ApiResponse(description = "Internal Server Error", responseCode = "500",
+                            content = @Content)
+            })
     public StudentVO updateStudent(@RequestBody StudentVO request) {
         return service.updateStudent(request);
         //update parentId???
