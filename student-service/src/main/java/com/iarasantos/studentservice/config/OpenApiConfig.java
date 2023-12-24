@@ -12,9 +12,9 @@ public class OpenApiConfig {
     public OpenAPI customOpenAPI(){
         return new OpenAPI()
                 .info(new Info()
-                        .title("iStudent")
+                        .title("iStudent - Students")
                         .version("v1")
-                        .description("Application to manage students grades")
+                        .description("Application to manage students and its parents")
                         .termsOfService("https://www.google.com")
                         .license(new License().name("Apache 2.0")
                                 .url("https://www.google.com")));

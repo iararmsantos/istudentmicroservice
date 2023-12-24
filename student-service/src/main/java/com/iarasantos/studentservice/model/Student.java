@@ -32,11 +32,11 @@ public class Student {
     private Long id;
 
     @JsonProperty("first_name")
-    @Column(length = 30)
+    @Column(length = 30, nullable = false)
     @NotEmpty(message = "First name cannot be null or empty")
     private String firstName;
     @JsonProperty("last_name")
-    @Column(length = 30)
+    @Column(length = 30, nullable = false)
     @NotEmpty(message = "Last name cannot be null or empty")
     private String lastName;
     private String phone;

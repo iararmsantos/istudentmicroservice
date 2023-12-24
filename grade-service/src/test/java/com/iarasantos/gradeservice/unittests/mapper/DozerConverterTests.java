@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.iarasantos.common.utilcommon.mapper.DozerMapper;
 import com.iarasantos.gradeservice.data.vo.v1.GradeVO;
-import com.iarasantos.gradeservice.unittests.mapper.mocks.MockGrade;
+import com.iarasantos.gradeservice.unittests.mocks.MockGrade;
 import com.iarasantos.gradeservice.model.Grade;
 import java.util.Date;
 import java.util.List;

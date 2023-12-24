@@ -1,0 +1,21 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: teacher-service
+  #database configuration
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    show_sql: true
+    hibernate:
+      ddl-auto: update
+
+#swagger paths definitions
+spring-doc:
+  pathsToMatch: /api/**
+  swagger-ui:
+    use-root-path: true
+

@@ -7,7 +7,7 @@ import com.iarasantos.common.utilcommon.mapper.DozerMapper;
 import com.iarasantos.studentservice.data.vo.v1.StudentVO;
 import com.iarasantos.studentservice.model.Role;
 import com.iarasantos.studentservice.model.Student;
-import com.iarasantos.studentservice.unittests.mapper.mocks.MockStudent;
+import com.iarasantos.studentservice.unittests.mocks.MockStudent;
 import java.util.Date;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
