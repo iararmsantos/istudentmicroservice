@@ -3,27 +3,39 @@ package com.iarasantos.gradeservice.unittests.mapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.iarasantos.common.utilcommon.mapper.DozerMapper;
 import com.iarasantos.gradeservice.data.vo.v1.GradeVO;
 import com.iarasantos.gradeservice.unittests.mocks.MockGrade;
 import com.iarasantos.gradeservice.model.Grade;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeMap;
+import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.beans.factory.annotation.Autowired;
 
-public class DozerConverterTests {
+public class ModelMapperTests {
 
     MockGrade inputObject;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     @BeforeEach
     public void setUp() {
         inputObject = new MockGrade();
+        modelMapper = new ModelMapper();
+
     }
 
     @Test
     public void parseEntityToVOTest() {
-        GradeVO output = DozerMapper.parseObject(inputObject.mockEntity(), GradeVO.class);
+    Grade grade = inputObject.mockEntity();
+        propertyMapping();
+        GradeVO output = this.modelMapper.map(grade, GradeVO.class);
         assertEquals(Long.valueOf(0), output.getKey());
         assertEquals("A", output.getLetterGrade());
         assertEquals(Double.valueOf(0), output.getNumberGrade());
@@ -35,7 +47,11 @@ public class DozerConverterTests {
 
     @Test
     public void parseEntityListToVOListTest() {
-        List<GradeVO> outputList = DozerMapper.parseListObjects(inputObject.mockEntityList(), GradeVO.class);
+        List<Grade> grades = inputObject.mockEntityList();
+        propertyMapping();
+        List<GradeVO> outputList = grades.stream().map((grade) ->
+                this.modelMapper.map(grade, GradeVO.class))
+                .collect(Collectors.toList());
         GradeVO outputZero = outputList.get(0);
 
         assertEquals(Long.valueOf(0L), outputZero.getKey());
@@ -66,7 +82,9 @@ public class DozerConverterTests {
 
     @Test
     public void parseVOToEntityTest() {
-        Grade output = DozerMapper.parseObject(inputObject.mockVO(), Grade.class);
+        GradeVO grade = inputObject.mockVO();
+        propertyMapping();
+        Grade output = this.modelMapper.map(grade, Grade.class);
         assertEquals(Long.valueOf(0), output.getId());
         assertEquals("A", output.getLetterGrade());
         assertEquals(Double.valueOf(0), output.getNumberGrade());
@@ -77,7 +95,11 @@ public class DozerConverterTests {
 
     @Test
     public void parseVOListToEntityListTest() {
-        List<Grade> outputList = DozerMapper.parseListObjects(inputObject.mockVOList(), Grade.class);
+        List<GradeVO> grades = inputObject.mockVOList();
+        propertyMapping();
+        List<Grade> outputList = grades.stream().map((grade) ->
+                this.modelMapper.map(grade, Grade.class))
+                .collect(Collectors.toList());
         Grade outputZero = outputList.get(0);
 
         assertEquals(Long.valueOf(0), outputZero.getId());
@@ -104,5 +126,14 @@ public class DozerConverterTests {
         assertEquals(Long.valueOf(12), outputTwelve.getStudentId());
         assertEquals(Long.valueOf(12), outputTwelve.getCourseId());
         assertTrue((new Date().getTime() - outputTwelve.getCreationDate().getTime()) < 1000);
+    }
+
+    private void propertyMapping() {
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        TypeMap<Grade, GradeVO> propertyMapper = this.modelMapper.createTypeMap(Grade.class, GradeVO.class);
+        propertyMapper.addMapping(Grade::getId, GradeVO::setKey);
+        TypeMap<GradeVO, Grade> propertyMapperVO = this.modelMapper.createTypeMap(GradeVO.class, Grade.class);
+        propertyMapperVO.addMapping(GradeVO::getKey, Grade::setId);
+
     }
 }

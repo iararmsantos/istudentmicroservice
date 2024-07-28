@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import com.iarasantos.loginservice.data.vo.v1.UserVO;
+import com.iarasantos.loginservice.data.vo.v1.UserRequest;
 import com.iarasantos.loginservice.exceptions.RequiredObjectIsNullException;
 import com.iarasantos.loginservice.unittests.mocks.MockUser;
 import com.iarasantos.loginservice.model.Role;
@@ -50,7 +50,7 @@ public class UserServicesTest {
         //after call repository
         User persisted = entity;
         persisted.setId(1L);
-        UserVO vo = input.mockVO(1);
+        UserRequest vo = input.mockVO(1);
         vo.setKey(1L);
 //        when(repository.save(entity)).thenReturn(persisted);
         when(repository.save(any(User.class))).thenReturn(persisted);
@@ -163,7 +163,7 @@ public class UserServicesTest {
         //after call repository
         User persisted = entity;
         persisted.setId(1L);
-        UserVO vo = input.mockVO(1);
+        UserRequest vo = input.mockVO(1);
         vo.setKey(1L);
 //        when(repository.save(entity)).thenReturn(persisted);
         when(repository.findById(1L)).thenReturn(Optional.of(entity));

@@ -3,15 +3,24 @@ server:
 
 spring:
   application:
-    name: grade-service
+    name: course-service
   #database configuration
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/grade_service?useTimezone=true&serverTimezone=UTC
+    username: root
+    password:
 
   jpa:
     show_sql: true
     hibernate:
       ddl-auto: update
+
+  flyway:
+    url: jdbc:mysql://localhost:3306
+    schemas: grade_service
+    user: root
+    password:
 
 #swagger paths definitions
 spring-doc:

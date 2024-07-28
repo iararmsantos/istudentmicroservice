@@ -3,7 +3,7 @@ package com.iarasantos.studentservice.data.vo.v1;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.github.dozermapper.core.Mapping;
+
 import com.iarasantos.studentservice.model.StudentParent;
 import com.iarasantos.studentservice.model.Role;
 import java.io.Serializable;
@@ -11,9 +11,7 @@ import java.util.Date;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.hateoas.RepresentationModel;
 
 @Data
@@ -25,7 +23,6 @@ public class StudentVO extends RepresentationModel<StudentVO> implements Seriali
 
     private static final long serialVersionUID = 1L;
 
-    @Mapping("id")
     @JsonProperty("id")
     private Long key;
 

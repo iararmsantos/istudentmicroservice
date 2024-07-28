@@ -1,7 +1,7 @@
 package com.iarasantos.loginservice.controller;
 
 import com.iarasantos.common.utilcommon.util.MediaType;
-import com.iarasantos.loginservice.data.vo.v1.UserVO;
+import com.iarasantos.loginservice.data.vo.v1.UserRequest;
 import com.iarasantos.loginservice.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -43,7 +43,7 @@ public class UserController {
                                     @Content(
                                             mediaType = "application/json",
                                             array = @ArraySchema(
-                                                    schema = @Schema(implementation = UserVO.class))
+                                                    schema = @Schema(implementation = UserRequest.class))
                                     )
                             }),
                     @ApiResponse(description = "Bad request", responseCode = "400",
@@ -55,7 +55,7 @@ public class UserController {
                     @ApiResponse(description = "Internal Server Error", responseCode = "500",
                             content = @Content)
             })
-    public List<UserVO> getUsers() {
+    public List<UserRequest> getUsers() {
         return service.getUsers();
     }
 
@@ -71,7 +71,7 @@ public class UserController {
             responses = {
                     @ApiResponse(description = "Success", responseCode = "200",
                             content = @Content(
-                                    schema = @Schema(implementation = UserVO.class))
+                                    schema = @Schema(implementation = UserRequest.class))
                     ),
                     @ApiResponse(description = "Bad request", responseCode = "400",
                             content = @Content),
@@ -80,7 +80,7 @@ public class UserController {
                     @ApiResponse(description = "Internal Server Error", responseCode = "500",
                             content = @Content)
             })
-    public UserVO createUser(@Valid @RequestBody UserVO request) {
+    public UserRequest createUser(@Valid @RequestBody UserRequest request) {
         return service.createUser(request);
     }
 
@@ -92,7 +92,7 @@ public class UserController {
             responses = {
                     @ApiResponse(description = "Success", responseCode = "200",
                             content = @Content(
-                                    schema = @Schema(implementation = UserVO.class))
+                                    schema = @Schema(implementation = UserRequest.class))
                     ),
                     @ApiResponse(description = "No Content", responseCode = "204",
                             content = @Content),
@@ -105,7 +105,7 @@ public class UserController {
                     @ApiResponse(description = "Internal Server Error", responseCode = "500",
                             content = @Content)
             })
-    public UserVO getUser(@PathVariable("id") Long userId) {
+    public UserRequest getUser(@PathVariable("id") Long userId) {
         return service.getUser(userId);
     }
 
@@ -140,7 +140,7 @@ public class UserController {
             responses = {
                     @ApiResponse(description = "Success", responseCode = "200",
                             content = @Content(
-                                    schema = @Schema(implementation = UserVO.class))
+                                    schema = @Schema(implementation = UserRequest.class))
                     ),
                     @ApiResponse(description = "Bad request", responseCode = "400",
                             content = @Content),
@@ -151,7 +151,7 @@ public class UserController {
                     @ApiResponse(description = "Internal Server Error", responseCode = "500",
                             content = @Content)
             })
-    public UserVO updateUser(@RequestBody UserVO request) {
+    public UserRequest updateUser(@RequestBody UserRequest request) {
         return service.updateUser(request);
     }
 

@@ -12,7 +12,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/parent_service?useTimezone=true&serverTimezone=UTC
     username: root
-    password: root
+    password:
 
   jpa:
     show_sql: true
@@ -23,4 +23,4 @@ spring:
     url: jdbc:mysql://localhost:3306
     schemas: parent_service
     user: root
-    password: root
+    password:

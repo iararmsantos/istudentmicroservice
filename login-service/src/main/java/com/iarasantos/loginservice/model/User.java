@@ -9,15 +9,14 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
+
 import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-import com.iarasantos.common.utilcommon.constants.AppConstant;
+
 
 @Data
 @NoArgsConstructor
@@ -32,17 +31,14 @@ public class User {
 
     @JsonProperty("first_name")
     @Column(length = 30)
-    @NotEmpty(message = "First name cannot be null or empty")
     private String firstName;
 
     @JsonProperty("last_name")
     @Column(length = 30)
-    @NotEmpty(message = "Last name cannot be null or empty")
     private String lastName;
 
     private String phone;
 
-    @Pattern(regexp = AppConstant.EMAIL_REGEXPR, message = "Email must be valid.")
     private String email;
 
     @Enumerated(EnumType.STRING)

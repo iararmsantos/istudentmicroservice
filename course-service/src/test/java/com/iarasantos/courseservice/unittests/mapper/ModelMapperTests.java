@@ -1,31 +1,40 @@
 package com.iarasantos.courseservice.unittests.mapper;
 
-import com.iarasantos.common.utilcommon.mapper.DozerMapper;
 import com.iarasantos.courseservice.data.vo.v1.CourseVO;
-import com.iarasantos.courseservice.unittests.mocks.MockCourse;
 import com.iarasantos.courseservice.model.Course;
 import com.iarasantos.courseservice.model.Season;
+import com.iarasantos.courseservice.unittests.mocks.MockCourse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeMap;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class DozerConverterTests {
+public class ModelMapperTests {
 
     MockCourse inputObject;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     @BeforeEach
     public void setUp() {
         inputObject = new MockCourse();
+        modelMapper = new ModelMapper();
     }
 
     @Test
     public void parseEntityToVOTest() {
-        CourseVO output = DozerMapper.parseObject(inputObject.mockEntity(), CourseVO.class);
+        Course course = inputObject.mockEntity();
+        propertyMapping();
+        CourseVO output = this.modelMapper.map(course, CourseVO.class);
         assertEquals(Long.valueOf(0), output.getKey());
         assertEquals("Title Test0", output.getTitle());
         assertEquals(Season.FALL, output.getSection());
@@ -36,7 +45,12 @@ public class DozerConverterTests {
 
     @Test
     public void parseEntityListToVOListTest() {
-        List<CourseVO> outputList = DozerMapper.parseListObjects(inputObject.mockEntityList(), CourseVO.class);
+        List<Course> courses = inputObject.mockEntityList();
+        propertyMapping();
+        List<CourseVO> outputList = courses.stream()
+                .map((course) -> this.modelMapper.map(course, CourseVO.class))
+                .collect(Collectors.toList());
+
         CourseVO outputZero = outputList.get(0);
 
         assertEquals(Long.valueOf(0L), outputZero.getKey());
@@ -67,7 +81,9 @@ public class DozerConverterTests {
 
     @Test
     public void parseVOToEntityTest() {
-        Course output = DozerMapper.parseObject(inputObject.mockVO(), Course.class);
+        CourseVO courseVO = inputObject.mockVO();
+        Course output = this.modelMapper.map(courseVO, Course.class);
+
         assertEquals(Long.valueOf(0L), output.getId());
         assertEquals("Title Test0", output.getTitle());
         assertEquals(Season.FALL, output.getSection());
@@ -78,7 +94,10 @@ public class DozerConverterTests {
 
     @Test
     public void parseVOListToEntityListTest() {
-        List<Course> outputList = DozerMapper.parseListObjects(inputObject.mockVOList(), Course.class);
+        List<CourseVO> courses = inputObject.mockVOList();
+        List<Course> outputList = courses.stream()
+                .map((course) -> this.modelMapper.map(course, Course.class))
+                .collect(Collectors.toList());
         Course outputZero = outputList.get(0);
 
         assertEquals(Long.valueOf(0), outputZero.getId());
@@ -105,5 +124,10 @@ public class DozerConverterTests {
         assertEquals(12, outputTwelve.getYear());
         assertEquals(Long.valueOf(12), outputTwelve.getTeacherId());
         assertTrue((new Date().getTime() - outputTwelve.getCreationDate().getTime()) < 1000);
+    }
+
+    private void propertyMapping() {
+        TypeMap<Course, CourseVO> propertyMapper = this.modelMapper.createTypeMap(Course.class, CourseVO.class);
+        propertyMapper.addMapping(Course::getId, CourseVO::setKey);
     }
 }

@@ -1,6 +1,6 @@
 package com.iarasantos.loginservice.unittests.mocks;
 
-import com.iarasantos.loginservice.data.vo.v1.UserVO;
+import com.iarasantos.loginservice.data.vo.v1.UserRequest;
 import com.iarasantos.loginservice.model.Role;
 import com.iarasantos.loginservice.model.User;
 import java.util.ArrayList;
@@ -13,12 +13,12 @@ public class MockUser {
         return mockEntity(0);
     }
 
-    public UserVO mockVO() {
+    public UserRequest mockVO() {
         return mockVO(0);
     }
 
-    public List<UserVO> mockVOList() {
-        List<UserVO> users = new ArrayList<>();
+    public List<UserRequest> mockVOList() {
+        List<UserRequest> users = new ArrayList<>();
         for(int i = 0; i< 14; i++) {
             users.add(mockVO(i));
         }
@@ -47,8 +47,8 @@ public class MockUser {
         return user;
     }
 
-    public UserVO mockVO(Integer number) {
-        UserVO user = new UserVO();
+    public UserRequest mockVO(Integer number) {
+        UserRequest user = new UserRequest();
         user.setKey(Long.valueOf(number));
         user.setFirstName("First Name Test" + number);
         user.setLastName("Last Name Test" + number);

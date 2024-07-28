@@ -1,7 +1,6 @@
 package com.iarasantos.studentservice.data.vo.v1;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.dozermapper.core.Mapping;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,7 +16,6 @@ public class StudentParentVO extends RepresentationModel<StudentParentVO> implem
 
     private static final long serialVersionUID = 1L;
 
-    @Mapping("id")
     private Long key;
 
     @JsonProperty("parent_id")

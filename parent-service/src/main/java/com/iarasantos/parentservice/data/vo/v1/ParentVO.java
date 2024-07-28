@@ -3,7 +3,6 @@ package com.iarasantos.parentservice.data.vo.v1;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.github.dozermapper.core.Mapping;
 import com.iarasantos.parentservice.model.Role;
 import java.io.Serializable;
 import java.util.Date;
@@ -20,7 +19,6 @@ import org.springframework.hateoas.RepresentationModel;
 public class ParentVO extends RepresentationModel<ParentVO> implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @Mapping("id")
     @JsonProperty("id")
     private Long key;
 

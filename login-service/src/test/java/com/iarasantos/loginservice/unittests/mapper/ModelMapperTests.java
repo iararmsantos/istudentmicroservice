@@ -1,116 +1,146 @@
-package com.iarasantos.parentservice.unittests.mapper;
+package com.iarasantos.loginservice.unittests.mapper;
+
+import com.iarasantos.loginservice.data.vo.v1.UserRequest;
+import com.iarasantos.loginservice.model.Role;
+import com.iarasantos.loginservice.model.User;
+import com.iarasantos.loginservice.unittests.mocks.MockUser;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeMap;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.iarasantos.common.utilcommon.mapper.DozerMapper;
-import com.iarasantos.parentservice.data.vo.v1.ParentVO;
-import com.iarasantos.parentservice.model.Role;
-import com.iarasantos.parentservice.model.Parent;
-import com.iarasantos.parentservice.unittests.mocks.MockParent;
-import java.util.Date;
-import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+public class ModelMapperTests {
 
-public class DozerConverterTests {
+    MockUser inputObject;
 
-    MockParent inputObject;
+    @Autowired
+    private ModelMapper modelMapper;
 
     @BeforeEach
     public void setUp() {
-        inputObject = new MockParent();
+        inputObject = new MockUser();
+        modelMapper = new ModelMapper();
+        propertyMapping();
     }
 
     @Test
     public void parseEntityToVOTest() {
-        ParentVO output = DozerMapper.parseObject(inputObject.mockEntity(), ParentVO.class);
+        User user = inputObject.mockEntity();
+
+        UserRequest output = modelMapper.map(user, UserRequest.class);
         assertEquals(Long.valueOf(0L), output.getKey());
         assertEquals("First Name Test0", output.getFirstName());
         assertEquals("Last Name Test0", output.getLastName());
         assertEquals("Email Test0", output.getEmail());
         assertEquals("Phone Test0", output.getPhone());
-        assertEquals(Role.PARENT, output.getRole());
+        assertEquals(Role.STUDENT, output.getRole());
         assertTrue((new Date().getTime() - output.getCreationDate().getTime()) < 1000);
     }
 
     @Test
     public void parseEntityListToVOListTest() {
-        List<ParentVO> outputList = DozerMapper.parseListObjects(inputObject.mockEntityList(), ParentVO.class);
-        ParentVO outputZero = outputList.get(0);
+        List<User> users = inputObject.mockEntityList();
+
+        List<UserRequest> outputList = users.stream().map((user) ->
+                        modelMapper.map(user, UserRequest.class))
+                .collect(Collectors.toList());
+
+        UserRequest outputZero = outputList.get(0);
 
         assertEquals(Long.valueOf(0L), outputZero.getKey());
         assertEquals("First Name Test0", outputZero.getFirstName());
         assertEquals("Last Name Test0", outputZero.getLastName());
         assertEquals("Email Test0", outputZero.getEmail());
         assertEquals("Phone Test0", outputZero.getPhone());
-        assertEquals(Role.PARENT, outputZero.getRole());
+        assertEquals(Role.STUDENT, outputZero.getRole());
         assertTrue((new Date().getTime() - outputZero.getCreationDate().getTime()) < 1000);
 
-        ParentVO outputSeven = outputList.get(7);
+        UserRequest outputSeven = outputList.get(7);
 
         assertEquals(Long.valueOf(7L), outputSeven.getKey());
         assertEquals("First Name Test7", outputSeven.getFirstName());
         assertEquals("Last Name Test7", outputSeven.getLastName());
         assertEquals("Email Test7", outputSeven.getEmail());
         assertEquals("Phone Test7", outputSeven.getPhone());
-        assertEquals(Role.PARENT, outputSeven.getRole());
+        assertEquals(Role.STUDENT, outputSeven.getRole());
         assertTrue((new Date().getTime() - outputSeven.getCreationDate().getTime()) < 1000);
 
-        ParentVO outputTwelve = outputList.get(12);
+        UserRequest outputTwelve = outputList.get(12);
 
         assertEquals(Long.valueOf(12L), outputTwelve.getKey());
         assertEquals("First Name Test12", outputTwelve.getFirstName());
         assertEquals("Last Name Test12", outputTwelve.getLastName());
         assertEquals("Email Test12", outputTwelve.getEmail());
         assertEquals("Phone Test12", outputTwelve.getPhone());
-        assertEquals(Role.PARENT, outputTwelve.getRole());
+        assertEquals(Role.STUDENT, outputTwelve.getRole());
         assertTrue((new Date().getTime() - outputTwelve.getCreationDate().getTime()) < 1000);
     }
 
     @Test
     public void parseVOToEntityTest() {
-        Parent output = DozerMapper.parseObject(inputObject.mockVO(), Parent.class);
+        UserRequest user = inputObject.mockVO();
+        User output = modelMapper.map(user, User.class);
+
         assertEquals(Long.valueOf(0L), output.getId());
         assertEquals("First Name Test0", output.getFirstName());
         assertEquals("Last Name Test0", output.getLastName());
         assertEquals("Email Test0", output.getEmail());
         assertEquals("Phone Test0", output.getPhone());
-        assertEquals(Role.PARENT, output.getRole());
+        assertEquals(Role.STUDENT, output.getRole());
         assertTrue((new Date().getTime() - output.getCreationDate().getTime()) < 1000);
     }
 
     @Test
     public void parseVOListToEntityListTest() {
-        List<Parent> outputList = DozerMapper.parseListObjects(inputObject.mockVOList(), Parent.class);
-        Parent outputZero = outputList.get(0);
+        List<UserRequest> users = inputObject.mockVOList();
+
+        List<User> outputList = users.stream().map((user) ->
+                        modelMapper.map(user, User.class))
+                .collect(Collectors.toList());
+
+        User outputZero = outputList.get(0);
 
         assertEquals(Long.valueOf(0L), outputZero.getId());
         assertEquals("First Name Test0", outputZero.getFirstName());
         assertEquals("Last Name Test0", outputZero.getLastName());
         assertEquals("Email Test0", outputZero.getEmail());
         assertEquals("Phone Test0", outputZero.getPhone());
-        assertEquals(Role.PARENT, outputZero.getRole());
+        assertEquals(Role.STUDENT, outputZero.getRole());
         assertTrue((new Date().getTime() - outputZero.getCreationDate().getTime()) < 1000);
 
-        Parent outputSeven = outputList.get(7);
+        User outputSeven = outputList.get(7);
 
         assertEquals(Long.valueOf(7L), outputSeven.getId());
         assertEquals("First Name Test7", outputSeven.getFirstName());
         assertEquals("Last Name Test7", outputSeven.getLastName());
         assertEquals("Email Test7", outputSeven.getEmail());
         assertEquals("Phone Test7", outputSeven.getPhone());
-        assertEquals(Role.PARENT, outputSeven.getRole());
+        assertEquals(Role.STUDENT, outputSeven.getRole());
         assertTrue((new Date().getTime() - outputSeven.getCreationDate().getTime()) < 1000);
 
-        Parent outputTwelve = outputList.get(12);
+        User outputTwelve = outputList.get(12);
 
         assertEquals(Long.valueOf(12L), outputTwelve.getId());
         assertEquals("First Name Test12", outputTwelve.getFirstName());
         assertEquals("Last Name Test12", outputTwelve.getLastName());
         assertEquals("Email Test12", outputTwelve.getEmail());
         assertEquals("Phone Test12", outputTwelve.getPhone());
-        assertEquals(Role.PARENT, outputTwelve.getRole());
+        assertEquals(Role.STUDENT, outputTwelve.getRole());
         assertTrue((new Date().getTime() - outputTwelve.getCreationDate().getTime()) < 1000);
+    }
+
+    private void propertyMapping() {
+        TypeMap<User, UserRequest> propertyMapper = this.modelMapper.createTypeMap(User.class, UserRequest.class);
+        propertyMapper.addMapping(User::getId, UserRequest::setKey);
+        TypeMap<UserRequest, User> propertyMapper2 = this.modelMapper.createTypeMap(UserRequest.class, User.class);
+        propertyMapper2.addMapping(UserRequest::getKey, User::setId);
     }
 }
