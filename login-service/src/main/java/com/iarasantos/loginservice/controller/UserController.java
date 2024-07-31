@@ -2,6 +2,7 @@ package com.iarasantos.loginservice.controller;
 
 import com.iarasantos.common.utilcommon.util.MediaType;
 import com.iarasantos.loginservice.data.vo.v1.UserRequest;
+import com.iarasantos.loginservice.data.vo.v1.UserResponse;
 import com.iarasantos.loginservice.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -55,7 +56,7 @@ public class UserController {
                     @ApiResponse(description = "Internal Server Error", responseCode = "500",
                             content = @Content)
             })
-    public List<UserRequest> getUsers() {
+    public List<UserResponse> getUsers() {
         return service.getUsers();
     }
 
@@ -80,7 +81,7 @@ public class UserController {
                     @ApiResponse(description = "Internal Server Error", responseCode = "500",
                             content = @Content)
             })
-    public UserRequest createUser(@Valid @RequestBody UserRequest request) {
+    public UserResponse createUser(@Valid @RequestBody UserRequest request) {
         return service.createUser(request);
     }
 
@@ -105,8 +106,33 @@ public class UserController {
                     @ApiResponse(description = "Internal Server Error", responseCode = "500",
                             content = @Content)
             })
-    public UserRequest getUser(@PathVariable("id") Long userId) {
+    public UserResponse getUser(@PathVariable("id") Long userId) {
         return service.getUser(userId);
+    }
+
+    @GetMapping(value = "/{userId}",
+            produces = {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
+                    MediaType.APPLICATION_YML})
+    @Operation(summary = "Find one user", description = "Find one user",
+            tags = {"Users"},
+            responses = {
+                    @ApiResponse(description = "Success", responseCode = "200",
+                            content = @Content(
+                                    schema = @Schema(implementation = UserRequest.class))
+                    ),
+                    @ApiResponse(description = "No Content", responseCode = "204",
+                            content = @Content),
+                    @ApiResponse(description = "Bad request", responseCode = "400",
+                            content = @Content),
+                    @ApiResponse(description = "Unauthorized", responseCode = "401",
+                            content = @Content),
+                    @ApiResponse(description = "Not Found", responseCode = "404",
+                            content = @Content),
+                    @ApiResponse(description = "Internal Server Error", responseCode = "500",
+                            content = @Content)
+            })
+    public UserResponse getUser(@PathVariable("userId") String userId) {
+        return service.getUserById(userId);
     }
 
     @DeleteMapping(value = "/{id}")
@@ -151,7 +177,7 @@ public class UserController {
                     @ApiResponse(description = "Internal Server Error", responseCode = "500",
                             content = @Content)
             })
-    public UserRequest updateUser(@RequestBody UserRequest request) {
+    public UserResponse updateUser(@RequestBody UserRequest request) {
         return service.updateUser(request);
     }
 

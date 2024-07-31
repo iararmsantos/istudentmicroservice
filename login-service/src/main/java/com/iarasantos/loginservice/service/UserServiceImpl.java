@@ -1,24 +1,26 @@
 package com.iarasantos.loginservice.service;
 
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
-
 import com.iarasantos.loginservice.controller.UserController;
 import com.iarasantos.loginservice.data.vo.v1.UserRequest;
+import com.iarasantos.loginservice.data.vo.v1.UserResponse;
 import com.iarasantos.loginservice.exceptions.RequiredObjectIsNullException;
 import com.iarasantos.loginservice.exceptions.ResourceNotFoundException;
-import com.iarasantos.loginservice.model.User;
+import com.iarasantos.loginservice.model.UserEntity;
 import com.iarasantos.loginservice.repository.UserRepository;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Service
 @Transactional
@@ -35,45 +37,58 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserRequest> getUsers() {
-        List<User> usersList= repository.findAll();
+    public List<UserResponse> getUsers() {
+        List<UserEntity> usersList = repository.findAll();
 
-        List<UserRequest> users = usersList
+        List<UserResponse> users = usersList
                 .stream()
-                .map((item) -> this.modelMapper.map(item, UserRequest.class))
+                .map((item) -> this.modelMapper.map(item, UserResponse.class))
                 .collect(Collectors.toList());
 
         //hateoas
         users
                 .stream()
                 .forEach(user -> user.add(linkTo(methodOn(UserController.class)
-                        .getUser(user.getKey())).withSelfRel()));
+                        .getUser(user.getUserId())).withSelfRel()));
 
         return users;
     }
 
     @Override
-    public UserRequest getUser(Long userId) {
-        User user = repository.findById(userId).orElseThrow(
+    public UserResponse getUser(Long userId) {
+        UserEntity user = repository.findById(userId).orElseThrow(
                 () -> new ResourceNotFoundException("Student with id " + userId + " not found!"));
-        UserRequest vo = this.modelMapper.map(user, UserRequest.class);
+        UserResponse vo = this.modelMapper.map(user, UserResponse.class);
 
         //hateoas
         vo.add(linkTo(methodOn(UserController.class)
-                .getUser(vo.getKey())).withSelfRel());
+                .getUser(vo.getUserId())).withSelfRel());
         return vo;
     }
 
     @Override
-    public UserRequest createUser(UserRequest request) {
-        if(request == null) {
+    public UserResponse getUserById(String userId) {
+        UserEntity user = repository.findByUserId(userId).orElseThrow(
+                () -> new ResourceNotFoundException("Student with id " + userId + " not found!"));
+        UserResponse vo = this.modelMapper.map(user, UserResponse.class);
+
+        //hateoas
+        vo.add(linkTo(methodOn(UserController.class)
+                .getUser(vo.getUserId())).withSelfRel());
+        return vo;
+    }
+
+    @Override
+    public UserResponse createUser(UserRequest request) {
+        if (request == null) {
             throw new RequiredObjectIsNullException();
         }
-        User user = this.modelMapper.map(request, User.class);
+        UserEntity user = this.modelMapper.map(request, UserEntity.class);
+        user.setUserId(UUID.randomUUID().toString());
         user.setCreationDate(new Date());
-        UserRequest vo = this.modelMapper.map(repository.save(user), UserRequest.class);
+        UserResponse vo = this.modelMapper.map(repository.save(user), UserResponse.class);
 
-        vo.add(linkTo(methodOn(UserController.class).getUser(vo.getKey())).withSelfRel());
+        vo.add(linkTo(methodOn(UserController.class).getUser(vo.getUserId())).withSelfRel());
 
         return vo;
     }
@@ -81,7 +96,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(Long userId) {
 
-        User user = repository.findById(userId).orElseThrow(
+        UserEntity user = repository.findById(userId).orElseThrow(
                 () -> new ResourceNotFoundException("User with id " + userId + " not found.")
         );
 
@@ -89,12 +104,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserRequest updateUser(UserRequest request) {
-        if(request == null) {
+    public UserResponse updateUser(UserRequest request) {
+        if (request == null) {
             throw new RequiredObjectIsNullException();
         }
 
-        User user = repository.findById(request.getKey()).orElseThrow(
+        UserEntity user = repository.findById(request.getKey()).orElseThrow(
                 () -> new ResourceNotFoundException("Student with id " + request.getKey() + " not found!"));
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
@@ -102,18 +117,18 @@ public class UserServiceImpl implements UserService {
         user.setEmail(request.getEmail());
         user.setRole(request.getRole());
 
-        UserRequest vo = this.modelMapper.map(repository.save(user), UserRequest.class);
+        UserResponse vo = this.modelMapper.map(repository.save(user), UserResponse.class);
 
         //hateoas
-        vo.add(linkTo(methodOn(UserController.class).getUser(vo.getKey())).withSelfRel());
+        vo.add(linkTo(methodOn(UserController.class).getUser(vo.getUserId())).withSelfRel());
 
         return vo;
     }
 
     private void propertyMapping() {
-        TypeMap<User, UserRequest> propertyMapper = this.modelMapper.createTypeMap(User.class, UserRequest.class);
-        propertyMapper.addMapping(User::getId, UserRequest::setKey);
-        TypeMap<UserRequest, User> propertyMapper2 = this.modelMapper.createTypeMap(UserRequest.class, User.class);
-        propertyMapper2.addMapping(UserRequest::getKey, User::setId);
+        TypeMap<UserEntity, UserRequest> propertyMapper = this.modelMapper.createTypeMap(UserEntity.class, UserRequest.class);
+        propertyMapper.addMapping(UserEntity::getId, UserRequest::setKey);
+        TypeMap<UserRequest, UserEntity> propertyMapper2 = this.modelMapper.createTypeMap(UserRequest.class, UserEntity.class);
+        propertyMapper2.addMapping(UserRequest::getKey, UserEntity::setId);
     }
 }

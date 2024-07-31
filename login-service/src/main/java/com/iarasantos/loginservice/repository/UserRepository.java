@@ -1,10 +1,12 @@
 package com.iarasantos.loginservice.repository;
 
-import com.iarasantos.loginservice.model.User;
+import com.iarasantos.loginservice.model.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-@Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+import java.util.Optional;
 
+@Repository
+public interface UserRepository extends JpaRepository<UserEntity, Long> {
+    Optional<UserEntity> findByUserId(String userId);
 }

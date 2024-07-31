@@ -2,14 +2,14 @@ package com.iarasantos.loginservice.unittests.mocks;
 
 import com.iarasantos.loginservice.data.vo.v1.UserRequest;
 import com.iarasantos.loginservice.model.Role;
-import com.iarasantos.loginservice.model.User;
+import com.iarasantos.loginservice.model.UserEntity;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class MockUser {
 
-    public User mockEntity() {
+    public UserEntity mockEntity() {
         return mockEntity(0);
     }
 
@@ -25,16 +25,16 @@ public class MockUser {
         return users;
     }
 
-    public List<User> mockEntityList() {
-        List<User> users = new ArrayList<>();
+    public List<UserEntity> mockEntityList() {
+        List<UserEntity> users = new ArrayList<>();
         for(int i = 0; i< 14; i++) {
             users.add(mockEntity(i));
         }
         return users;
     }
 
-    public User mockEntity(Integer number) {
-        User user = new User();
+    public UserEntity mockEntity(Integer number) {
+        UserEntity user = new UserEntity();
         user.setId(Long.valueOf(number));
         user.setFirstName("First Name Test" + number);
         user.setLastName("Last Name Test" + number);

@@ -11,7 +11,7 @@ import com.iarasantos.loginservice.data.vo.v1.UserRequest;
 import com.iarasantos.loginservice.exceptions.RequiredObjectIsNullException;
 import com.iarasantos.loginservice.unittests.mocks.MockUser;
 import com.iarasantos.loginservice.model.Role;
-import com.iarasantos.loginservice.model.User;
+import com.iarasantos.loginservice.model.UserEntity;
 import com.iarasantos.loginservice.repository.UserRepository;
 import com.iarasantos.loginservice.service.UserServiceImpl;
 import java.util.List;
@@ -27,7 +27,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockitoExtension.class)
-public class UserServicesTest {
+public class UserEntityServicesTest {
 
     MockUser input;
 
@@ -46,14 +46,14 @@ public class UserServicesTest {
     @Test
     void testCreateUser(){
         //before call repository
-        User entity = input.mockEntity(1);
+        UserEntity entity = input.mockEntity(1);
         //after call repository
-        User persisted = entity;
+        UserEntity persisted = entity;
         persisted.setId(1L);
         UserRequest vo = input.mockVO(1);
         vo.setKey(1L);
 //        when(repository.save(entity)).thenReturn(persisted);
-        when(repository.save(any(User.class))).thenReturn(persisted);
+        when(repository.save(any(UserEntity.class))).thenReturn(persisted);
 
         var result = service.createUser(vo);
         assertNotNull(result);
@@ -93,7 +93,7 @@ public class UserServicesTest {
 
     @Test
     void testGetUsers(){
-        List<User> list = input.mockEntityList();
+        List<UserEntity> list = input.mockEntityList();
 
         when(repository.findAll()).thenReturn(list);
 
@@ -139,7 +139,7 @@ public class UserServicesTest {
 
     @Test
     void testGetUserById(){
-        User entity = input.mockEntity(1);
+        UserEntity entity = input.mockEntity(1);
         entity.setId(1L);
 
         when(repository.findById(1L)).thenReturn(Optional.of(entity));
@@ -158,10 +158,10 @@ public class UserServicesTest {
     @Test
     void testUpdateUser(){
         //before call repository
-        User entity = input.mockEntity(1);
+        UserEntity entity = input.mockEntity(1);
         entity.setId(1L);
         //after call repository
-        User persisted = entity;
+        UserEntity persisted = entity;
         persisted.setId(1L);
         UserRequest vo = input.mockVO(1);
         vo.setKey(1L);
@@ -183,7 +183,7 @@ public class UserServicesTest {
 
     @Test
     void testDeleteUsers(){
-        User entity = input.mockEntity(1);
+        UserEntity entity = input.mockEntity(1);
         entity.setId(1L);
 
         when(repository.findById(1L)).thenReturn(Optional.of(entity));

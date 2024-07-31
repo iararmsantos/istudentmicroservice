@@ -1,4 +1,4 @@
-CREATE TABLE `user` (
+CREATE TABLE `user_entity` (
   `id` bigint(20) AUTO_INCREMENT PRIMARY KEY,
   `creation_date` datetime(6) DEFAULT NULL,
   `user_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,

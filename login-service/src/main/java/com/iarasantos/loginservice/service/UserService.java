@@ -1,16 +1,20 @@
 package com.iarasantos.loginservice.service;
 
 import com.iarasantos.loginservice.data.vo.v1.UserRequest;
+import com.iarasantos.loginservice.data.vo.v1.UserResponse;
+
 import java.util.List;
 
 public interface UserService {
-    public List<UserRequest> getUsers();
+    List<UserResponse> getUsers();
 
-    UserRequest getUser(Long userId);
+    UserResponse getUser(Long userId);
 
-    public UserRequest createUser(UserRequest request);
+    UserResponse createUser(UserRequest request);
 
-    public void deleteUser(Long id);
+    void deleteUser(Long id);
 
-    public UserRequest updateUser(UserRequest request);
+    UserResponse updateUser(UserRequest request);
+
+    UserResponse getUserById(String userId);
 }

@@ -2,7 +2,7 @@ package com.iarasantos.loginservice.unittests.mapper;
 
 import com.iarasantos.loginservice.data.vo.v1.UserRequest;
 import com.iarasantos.loginservice.model.Role;
-import com.iarasantos.loginservice.model.User;
+import com.iarasantos.loginservice.model.UserEntity;
 import com.iarasantos.loginservice.unittests.mocks.MockUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,7 +33,7 @@ public class ModelMapperTests {
 
     @Test
     public void parseEntityToVOTest() {
-        User user = inputObject.mockEntity();
+        UserEntity user = inputObject.mockEntity();
 
         UserRequest output = modelMapper.map(user, UserRequest.class);
         assertEquals(Long.valueOf(0L), output.getKey());
@@ -47,7 +47,7 @@ public class ModelMapperTests {
 
     @Test
     public void parseEntityListToVOListTest() {
-        List<User> users = inputObject.mockEntityList();
+        List<UserEntity> users = inputObject.mockEntityList();
 
         List<UserRequest> outputList = users.stream().map((user) ->
                         modelMapper.map(user, UserRequest.class))
@@ -87,7 +87,7 @@ public class ModelMapperTests {
     @Test
     public void parseVOToEntityTest() {
         UserRequest user = inputObject.mockVO();
-        User output = modelMapper.map(user, User.class);
+        UserEntity output = modelMapper.map(user, UserEntity.class);
 
         assertEquals(Long.valueOf(0L), output.getId());
         assertEquals("First Name Test0", output.getFirstName());
@@ -102,11 +102,11 @@ public class ModelMapperTests {
     public void parseVOListToEntityListTest() {
         List<UserRequest> users = inputObject.mockVOList();
 
-        List<User> outputList = users.stream().map((user) ->
-                        modelMapper.map(user, User.class))
+        List<UserEntity> outputList = users.stream().map((user) ->
+                        modelMapper.map(user, UserEntity.class))
                 .collect(Collectors.toList());
 
-        User outputZero = outputList.get(0);
+        UserEntity outputZero = outputList.get(0);
 
         assertEquals(Long.valueOf(0L), outputZero.getId());
         assertEquals("First Name Test0", outputZero.getFirstName());
@@ -116,7 +116,7 @@ public class ModelMapperTests {
         assertEquals(Role.STUDENT, outputZero.getRole());
         assertTrue((new Date().getTime() - outputZero.getCreationDate().getTime()) < 1000);
 
-        User outputSeven = outputList.get(7);
+        UserEntity outputSeven = outputList.get(7);
 
         assertEquals(Long.valueOf(7L), outputSeven.getId());
         assertEquals("First Name Test7", outputSeven.getFirstName());
@@ -126,7 +126,7 @@ public class ModelMapperTests {
         assertEquals(Role.STUDENT, outputSeven.getRole());
         assertTrue((new Date().getTime() - outputSeven.getCreationDate().getTime()) < 1000);
 
-        User outputTwelve = outputList.get(12);
+        UserEntity outputTwelve = outputList.get(12);
 
         assertEquals(Long.valueOf(12L), outputTwelve.getId());
         assertEquals("First Name Test12", outputTwelve.getFirstName());
@@ -138,9 +138,9 @@ public class ModelMapperTests {
     }
 
     private void propertyMapping() {
-        TypeMap<User, UserRequest> propertyMapper = this.modelMapper.createTypeMap(User.class, UserRequest.class);
-        propertyMapper.addMapping(User::getId, UserRequest::setKey);
-        TypeMap<UserRequest, User> propertyMapper2 = this.modelMapper.createTypeMap(UserRequest.class, User.class);
-        propertyMapper2.addMapping(UserRequest::getKey, User::setId);
+        TypeMap<UserEntity, UserRequest> propertyMapper = this.modelMapper.createTypeMap(UserEntity.class, UserRequest.class);
+        propertyMapper.addMapping(UserEntity::getId, UserRequest::setKey);
+        TypeMap<UserRequest, UserEntity> propertyMapper2 = this.modelMapper.createTypeMap(UserRequest.class, UserEntity.class);
+        propertyMapper2.addMapping(UserRequest::getKey, UserEntity::setId);
     }
 }
