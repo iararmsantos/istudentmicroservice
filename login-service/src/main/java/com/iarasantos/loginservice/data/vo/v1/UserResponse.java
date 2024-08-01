@@ -40,8 +40,6 @@ public class UserResponse extends RepresentationModel<UserResponse> implements S
 
     private Role role;
 
-    private String password;
-
     @JsonProperty("creation_date")
     private Date creationDate;
 }

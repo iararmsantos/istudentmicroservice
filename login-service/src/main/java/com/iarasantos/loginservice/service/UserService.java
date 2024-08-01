@@ -16,5 +16,5 @@ public interface UserService {
 
     UserResponse updateUser(UserRequest request);
 
-    UserResponse getUserById(String userId);
+    UserResponse getByUserId(String userId);
 }

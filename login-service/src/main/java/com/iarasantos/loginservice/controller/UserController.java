@@ -132,7 +132,7 @@ public class UserController {
                             content = @Content)
             })
     public UserResponse getUser(@PathVariable("userId") String userId) {
-        return service.getUserById(userId);
+        return service.getByUserId(userId);
     }
 
     @DeleteMapping(value = "/{id}")

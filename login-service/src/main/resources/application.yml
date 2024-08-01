@@ -26,3 +26,12 @@ spring:
     schemas: login_service
     user: root
     password:
+
+gateway:
+  ip: 127.0.0.1
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG

@@ -11,6 +11,7 @@ import com.iarasantos.loginservice.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +32,10 @@ public class UserServiceImpl implements UserService {
 
     private ModelMapper modelMapper;
 
-    public UserServiceImpl() {
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    public UserServiceImpl(BCryptPasswordEncoder bCryptPasswordEncoder) {
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.modelMapper = new ModelMapper();
         propertyMapping();
     }
@@ -67,7 +71,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse getUserById(String userId) {
+    public UserResponse getByUserId(String userId) {
         UserEntity user = repository.findByUserId(userId).orElseThrow(
                 () -> new ResourceNotFoundException("Student with id " + userId + " not found!"));
         UserResponse vo = this.modelMapper.map(user, UserResponse.class);
@@ -83,8 +87,10 @@ public class UserServiceImpl implements UserService {
         if (request == null) {
             throw new RequiredObjectIsNullException();
         }
+
         UserEntity user = this.modelMapper.map(request, UserEntity.class);
         user.setUserId(UUID.randomUUID().toString());
+        user.setPassword(bCryptPasswordEncoder.encode(request.getPassword()));
         user.setCreationDate(new Date());
         UserResponse vo = this.modelMapper.map(repository.save(user), UserResponse.class);
 
