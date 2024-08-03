@@ -23,14 +23,14 @@ import org.slf4j.LoggerFactory;
 @EnableWebSecurity
 public class WebSecurity {
 
-    private UserService usersService;
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
-    private Environment environment;
+    private final UserService userService;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final Environment environment;
     private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
 
     @Autowired
     public WebSecurity(UserService usersService, BCryptPasswordEncoder bCryptPasswordEncoder, Environment environment) {
-        this.usersService = usersService;
+        this.userService = usersService;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.environment = environment;
     }
@@ -41,26 +41,26 @@ public class WebSecurity {
         logger.info("API Gateway IP Address: {}", ipAddress);
         WebExpressionAuthorizationManager  gatewayIp = new WebExpressionAuthorizationManager("hasIpAddress('" + environment.getProperty("gateway.ip") + "')");
         //Configure AuthenticationManagerBuilder
-//        AuthenticationManagerBuilder authenticationManagerBuilder =
-//                http.getSharedObject(AuthenticationManagerBuilder.class);
+        AuthenticationManagerBuilder authenticationManagerBuilder =
+                http.getSharedObject(AuthenticationManagerBuilder.class);
 
-//        authenticationManagerBuilder.userDetailsService(userService)
-//                .passwordEncoder(bCryptPasswordEncoder);
-//        AuthenticationManager authenticationManager = authenticationManagerBuilder.build();
+        authenticationManagerBuilder.userDetailsService(userService)
+                .passwordEncoder(bCryptPasswordEncoder);
+        AuthenticationManager authenticationManager = authenticationManagerBuilder.build();
 
-        //Create authenticationFilter
-//        AuthenticationFilter authenticationFilter = new AuthenticationFilter(usersService, environment, authenticationManager);
-//        authenticationFilter.setFilterProcessesUrl(environment.getProperty("login.url.path"));
-//        IpAddressMatcher hasIpAddress = new IpAddressMatcher(Objects.requireNonNull(environment.getProperty("gateway.ipv4")));
-//        IpAddressMatcher hasIpv4Address = new IpAddressMatcher(Objects.requireNonNull(environment.getProperty("gateway.ip")));
+//        Create authenticationFilter
+        AuthenticationFilter authenticationFilter = new AuthenticationFilter(authenticationManager, userService, environment);
+        authenticationFilter.setFilterProcessesUrl(environment.getProperty("login.url.path"));
+
 
         http.authorizeHttpRequests((auth) -> auth
-                        .requestMatchers(new AntPathRequestMatcher("/api/users/**", "POST"))
-//                        .permitAll())
-                        .access(gatewayIp))
+                        .requestMatchers(new AntPathRequestMatcher("/api/users/**"))
+                        .permitAll())
+//                        .access(gatewayIp))
+
                 .csrf(AbstractHttpConfigurer::disable)
-//                .addFilter(authenticationFilter)
-//                .authenticationManager(authenticationManager)
+                .addFilter(authenticationFilter)
+                .authenticationManager(authenticationManager)
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 

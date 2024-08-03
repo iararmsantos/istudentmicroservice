@@ -11,10 +11,14 @@ import com.iarasantos.loginservice.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -61,7 +65,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse getUser(Long userId) {
         UserEntity user = repository.findById(userId).orElseThrow(
-                () -> new ResourceNotFoundException("Student with id " + userId + " not found!"));
+                () -> new ResourceNotFoundException("User with id " + userId + " not found!"));
         UserResponse vo = this.modelMapper.map(user, UserResponse.class);
 
         //hateoas
@@ -73,7 +77,19 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse getByUserId(String userId) {
         UserEntity user = repository.findByUserId(userId).orElseThrow(
-                () -> new ResourceNotFoundException("Student with id " + userId + " not found!"));
+                () -> new ResourceNotFoundException("User with id " + userId + " not found!"));
+        UserResponse vo = this.modelMapper.map(user, UserResponse.class);
+
+        //hateoas
+        vo.add(linkTo(methodOn(UserController.class)
+                .getUser(vo.getUserId())).withSelfRel());
+        return vo;
+    }
+
+    @Override
+    public UserResponse getUserByEmail(String email) {
+        UserEntity user = repository.findByEmail(email).orElseThrow(
+                () -> new ResourceNotFoundException("User with id " + email + " not found!"));
         UserResponse vo = this.modelMapper.map(user, UserResponse.class);
 
         //hateoas
@@ -116,7 +132,7 @@ public class UserServiceImpl implements UserService {
         }
 
         UserEntity user = repository.findById(request.getKey()).orElseThrow(
-                () -> new ResourceNotFoundException("Student with id " + request.getKey() + " not found!"));
+                () -> new ResourceNotFoundException("User with id " + request.getKey() + " not found!"));
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setPhone(request.getPhone());
@@ -136,5 +152,14 @@ public class UserServiceImpl implements UserService {
         propertyMapper.addMapping(UserEntity::getId, UserRequest::setKey);
         TypeMap<UserRequest, UserEntity> propertyMapper2 = this.modelMapper.createTypeMap(UserRequest.class, UserEntity.class);
         propertyMapper2.addMapping(UserRequest::getKey, UserEntity::setId);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        UserEntity user = repository.findByEmail(username).orElseThrow(
+                () -> new ResourceNotFoundException("User with id " + username + " not found!"
+        ));
+
+        return new User(user.getEmail(), user.getPassword(), true, true, true, true, new ArrayList<>());
     }
 }

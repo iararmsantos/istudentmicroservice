@@ -6,16 +6,24 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import com.iarasantos.loginservice.controller.UserController;
 import com.iarasantos.loginservice.data.vo.v1.UserRequest;
+import com.iarasantos.loginservice.data.vo.v1.UserResponse;
 import com.iarasantos.loginservice.exceptions.RequiredObjectIsNullException;
 import com.iarasantos.loginservice.unittests.mocks.MockUser;
 import com.iarasantos.loginservice.model.Role;
 import com.iarasantos.loginservice.model.UserEntity;
 import com.iarasantos.loginservice.repository.UserRepository;
 import com.iarasantos.loginservice.service.UserServiceImpl;
+
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -24,6 +32,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
+import org.springframework.hateoas.Link;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockitoExtension.class)
@@ -37,35 +48,59 @@ public class UserEntityServicesTest {
     @Mock
     UserRepository repository;
 
+    @Mock
+    private ModelMapper modelMapper;
+
+    @Mock
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+
     @BeforeEach
     void setUpMocks() throws Exception {
-        input = new MockUser();
         MockitoAnnotations.openMocks(this);
+        input = new MockUser();
     }
 
     @Test
     void testCreateUser(){
-        //before call repository
-        UserEntity entity = input.mockEntity(1);
-        //after call repository
-        UserEntity persisted = entity;
-        persisted.setId(1L);
-        UserRequest vo = input.mockVO(1);
-        vo.setKey(1L);
-//        when(repository.save(entity)).thenReturn(persisted);
-        when(repository.save(any(UserEntity.class))).thenReturn(persisted);
+        UserEntity mockEntity = input.mockEntity(1);
 
-        var result = service.createUser(vo);
+        UserEntity persistedEntity = input.mockEntity(1);
+        persistedEntity.setUserId(UUID.randomUUID().toString());
+        persistedEntity.setPassword(UUID.randomUUID().toString()); // Simulate encoded password
+        persistedEntity.setCreationDate(new Date());
+
+        UserRequest mockRequest = input.mockVO(1);
+
+        UserResponse mockResponse = new UserResponse();
+        mockResponse.setFirstName("First Name Test1");
+        mockResponse.setLastName("Last Name Test1");
+        mockResponse.setPhone("Phone Test1");
+        mockResponse.setEmail("Email Test1");
+        mockResponse.setRole(Role.STUDENT);
+        mockResponse.setUserId(persistedEntity.getUserId());
+        Link selfLink = linkTo(methodOn(UserController.class).getUser(persistedEntity.getUserId())).withSelfRel();
+        mockResponse.add(selfLink);
+
+        // Set up mock behavior
+        when(modelMapper.map(mockRequest, UserEntity.class)).thenReturn(mockEntity);
+        when(bCryptPasswordEncoder.encode(mockRequest.getPassword())).thenReturn(persistedEntity.getPassword());
+        when(repository.save(any(UserEntity.class))).thenReturn(persistedEntity);
+        when(modelMapper.map(persistedEntity, UserResponse.class)).thenReturn(mockResponse);
+
+        // Act: Call the method under test
+        UserResponse result = service.createUser(mockRequest);
+
+        // Assert: Verify the results
         assertNotNull(result);
-        assertNotNull(result.getKey());
         assertNotNull(result.getLinks());
-        assertTrue(result.getLinks().toString().contains("</api/users/1>;rel=\"self\""));
+        assertTrue(result.getLinks().contains(selfLink));
         assertEquals("First Name Test1", result.getFirstName());
         assertEquals("Last Name Test1", result.getLastName());
         assertEquals("Phone Test1", result.getPhone());
         assertEquals("Email Test1", result.getEmail());
         assertEquals(Role.STUDENT, result.getRole());
     }
+
 
     @Test
     void testCreateWithNullUser(){
@@ -104,7 +139,6 @@ public class UserEntityServicesTest {
 
         var UserOne = result.get(1);
         assertNotNull(UserOne);
-        assertNotNull(UserOne.getKey());
         assertNotNull(UserOne.getLinks());
         System.out.println(UserOne.getLinks().toString());
         assertTrue(UserOne.getLinks().toString().contains("</api/users/1>;rel=\"self\""));
@@ -116,7 +150,6 @@ public class UserEntityServicesTest {
 
         var UserFour = result.get(1);
         assertNotNull(UserFour);
-        assertNotNull(UserFour.getKey());
         assertNotNull(UserFour.getLinks());
         assertTrue(UserFour.getLinks().toString().contains("</api/users/1>;rel=\"self\""));
         assertEquals("First Name Test1", UserFour.getFirstName());
@@ -127,7 +160,6 @@ public class UserEntityServicesTest {
 
         var UserSeven = result.get(1);
         assertNotNull(UserSeven);
-        assertNotNull(UserSeven.getKey());
         assertNotNull(UserSeven.getLinks());
         assertTrue(UserSeven.getLinks().toString().contains("</api/users/1>;rel=\"self\""));
         assertEquals("First Name Test1", UserSeven.getFirstName());
@@ -145,7 +177,6 @@ public class UserEntityServicesTest {
         when(repository.findById(1L)).thenReturn(Optional.of(entity));
         var result = service.getUser(1L);
         assertNotNull(result);
-        assertNotNull(result.getKey());
         assertNotNull(result.getLinks());
         assertTrue(result.getLinks().toString().contains("</api/users/1>;rel=\"self\""));
         assertEquals("First Name Test1", result.getFirstName());
@@ -171,7 +202,6 @@ public class UserEntityServicesTest {
 
         var result = service.updateUser(vo);
         assertNotNull(result);
-        assertNotNull(result.getKey());
         assertNotNull(result.getLinks());
         assertTrue(result.getLinks().toString().contains("</api/users/1>;rel=\"self\""));
         assertEquals("First Name Test1", result.getFirstName());

@@ -6,6 +6,7 @@ import com.iarasantos.loginservice.model.UserEntity;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 public class MockUser {
 
@@ -36,14 +37,14 @@ public class MockUser {
     public UserEntity mockEntity(Integer number) {
         UserEntity user = new UserEntity();
         user.setId(Long.valueOf(number));
+        user.setUserId(UUID.randomUUID().toString()); // Add userId
         user.setFirstName("First Name Test" + number);
         user.setLastName("Last Name Test" + number);
         user.setEmail("Email Test" + number);
         user.setPhone("Phone Test" + number);
+        user.setPassword("password" + number); // Set password
         user.setRole(Role.STUDENT);
-
         user.setCreationDate(new Date());
-
         return user;
     }
 

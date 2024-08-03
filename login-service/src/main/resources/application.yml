@@ -29,6 +29,13 @@ spring:
 
 gateway:
   ip: 127.0.0.1
+login:
+  url:
+    path: /login
+
+token:
+  expiration_time: 3600000
+  secret: H3(KVfajgJReaZeQb7cdrqBeZfgchvPhkigae2PhjVkYWRlPumnc1wko4pqresDd
 
 logging:
   level:
