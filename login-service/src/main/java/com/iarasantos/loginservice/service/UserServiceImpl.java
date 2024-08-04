@@ -9,7 +9,6 @@ import com.iarasantos.loginservice.exceptions.ResourceNotFoundException;
 import com.iarasantos.loginservice.model.UserEntity;
 import com.iarasantos.loginservice.repository.UserRepository;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -34,25 +33,22 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository repository;
 
+    @Autowired
     private ModelMapper modelMapper;
 
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public UserServiceImpl(BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-        this.modelMapper = new ModelMapper();
-        propertyMapping();
+
     }
 
     @Override
     public List<UserResponse> getUsers() {
+        System.out.println(this.modelMapper);
         List<UserEntity> usersList = repository.findAll();
 
-        List<UserResponse> users = usersList
-                .stream()
-                .map((item) -> this.modelMapper.map(item, UserResponse.class))
-                .collect(Collectors.toList());
-
+        List<UserResponse> users = mapList(usersList, UserResponse.class);
         //hateoas
         users
                 .stream()
@@ -147,19 +143,19 @@ public class UserServiceImpl implements UserService {
         return vo;
     }
 
-    private void propertyMapping() {
-        TypeMap<UserEntity, UserRequest> propertyMapper = this.modelMapper.createTypeMap(UserEntity.class, UserRequest.class);
-        propertyMapper.addMapping(UserEntity::getId, UserRequest::setKey);
-        TypeMap<UserRequest, UserEntity> propertyMapper2 = this.modelMapper.createTypeMap(UserRequest.class, UserEntity.class);
-        propertyMapper2.addMapping(UserRequest::getKey, UserEntity::setId);
-    }
-
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserEntity user = repository.findByEmail(username).orElseThrow(
                 () -> new ResourceNotFoundException("User with id " + username + " not found!"
-        ));
+                ));
 
         return new User(user.getEmail(), user.getPassword(), true, true, true, true, new ArrayList<>());
+    }
+
+    <S, T> List<T> mapList(List<S> source, Class<T> targetClass) {
+        return source
+                .stream()
+                .map(element -> modelMapper.map(element, targetClass))
+                .collect(Collectors.toList());
     }
 }

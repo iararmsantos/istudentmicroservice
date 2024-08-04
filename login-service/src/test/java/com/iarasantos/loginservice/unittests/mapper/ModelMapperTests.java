@@ -1,14 +1,17 @@
 package com.iarasantos.loginservice.unittests.mapper;
 
 import com.iarasantos.loginservice.data.vo.v1.UserRequest;
+import com.iarasantos.loginservice.data.vo.v1.UserResponse;
 import com.iarasantos.loginservice.model.Role;
 import com.iarasantos.loginservice.model.UserEntity;
 import com.iarasantos.loginservice.unittests.mocks.MockUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Date;
 import java.util.List;
@@ -17,6 +20,8 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(classes = TestConfig.class)
 public class ModelMapperTests {
 
     MockUser inputObject;
@@ -27,8 +32,6 @@ public class ModelMapperTests {
     @BeforeEach
     public void setUp() {
         inputObject = new MockUser();
-        modelMapper = new ModelMapper();
-        propertyMapping();
     }
 
     @Test
@@ -137,10 +140,57 @@ public class ModelMapperTests {
         assertTrue((new Date().getTime() - outputTwelve.getCreationDate().getTime()) < 1000);
     }
 
-    private void propertyMapping() {
-        TypeMap<UserEntity, UserRequest> propertyMapper = this.modelMapper.createTypeMap(UserEntity.class, UserRequest.class);
-        propertyMapper.addMapping(UserEntity::getId, UserRequest::setKey);
-        TypeMap<UserRequest, UserEntity> propertyMapper2 = this.modelMapper.createTypeMap(UserRequest.class, UserEntity.class);
-        propertyMapper2.addMapping(UserRequest::getKey, UserEntity::setId);
+    @Test
+    public void parseEntityToResponseTest() {
+        UserEntity user = inputObject.mockEntity();
+        UserResponse output = modelMapper.map(user, UserResponse.class);
+
+        assertEquals("TestUserId0", output.getUserId());
+        assertEquals("First Name Test0", output.getFirstName());
+        assertEquals("Last Name Test0", output.getLastName());
+        assertEquals("Email Test0", output.getEmail());
+        assertEquals("Phone Test0", output.getPhone());
+        assertEquals(Role.STUDENT, output.getRole());
+        assertTrue((new Date().getTime() - output.getCreationDate().getTime()) < 1000);
     }
+
+    @Test
+    public void parseEntityListToResponseListTest() {
+        List<UserEntity> users = inputObject.mockEntityList();
+
+        List<UserResponse> outputList = users.stream().map((user) ->
+                        modelMapper.map(user, UserResponse.class))
+                .collect(Collectors.toList());
+
+        UserResponse outputZero = outputList.get(0);
+
+        assertEquals("TestUserId0", outputZero.getUserId());
+        assertEquals("First Name Test0", outputZero.getFirstName());
+        assertEquals("Last Name Test0", outputZero.getLastName());
+        assertEquals("Email Test0", outputZero.getEmail());
+        assertEquals("Phone Test0", outputZero.getPhone());
+        assertEquals(Role.STUDENT, outputZero.getRole());
+        assertTrue((new Date().getTime() - outputZero.getCreationDate().getTime()) < 1000);
+
+        UserResponse outputSeven = outputList.get(7);
+
+        assertEquals("TestUserId7", outputSeven.getUserId());
+        assertEquals("First Name Test7", outputSeven.getFirstName());
+        assertEquals("Last Name Test7", outputSeven.getLastName());
+        assertEquals("Email Test7", outputSeven.getEmail());
+        assertEquals("Phone Test7", outputSeven.getPhone());
+        assertEquals(Role.STUDENT, outputSeven.getRole());
+        assertTrue((new Date().getTime() - outputSeven.getCreationDate().getTime()) < 1000);
+
+        UserResponse outputTwelve = outputList.get(12);
+
+        assertEquals("TestUserId12", outputTwelve.getUserId());
+        assertEquals("First Name Test12", outputTwelve.getFirstName());
+        assertEquals("Last Name Test12", outputTwelve.getLastName());
+        assertEquals("Email Test12", outputTwelve.getEmail());
+        assertEquals("Phone Test12", outputTwelve.getPhone());
+        assertEquals(Role.STUDENT, outputTwelve.getRole());
+        assertTrue((new Date().getTime() - outputTwelve.getCreationDate().getTime()) < 1000);
+    }
+
 }
