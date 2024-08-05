@@ -54,7 +54,7 @@ public class WebSecurity {
 
 
         http.authorizeHttpRequests((auth) -> auth
-                        .requestMatchers(new AntPathRequestMatcher("/api/users/**"))
+                        .requestMatchers(new AntPathRequestMatcher("/api/**"))
                         .permitAll())
 //                        .access(gatewayIp))
 

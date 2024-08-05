@@ -54,4 +54,5 @@ public class UserEntity {
     @CreationTimestamp
     @JsonProperty("creation_date")
     private Date creationDate;
+
 }

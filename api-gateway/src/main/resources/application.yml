@@ -1,28 +1,81 @@
 server:
   port: 8080
-#spring.cloud.gateway.discovery.locator.lower-case-service-id=true
+
 spring:
   application:
     name: api-gateway
   cloud:
     gateway:
-      #      discovery:
-      #        locator:
-      #          enabled: true
-      #          lowerCaseServiceId: true
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
 
       routes:
+        - id: parent-service
+          uri: lb://parent-service
+          predicates:
+            - Path=/api/parents/**
+            - Method=GET,PUT,DELETE,POST
+            - Header=Authorization, Bearer (.*)
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/parent-service/api/parents/(?<segment>.*), /api/parents/${segment}
+            - AuthorizationHeaderFilter
+
+        - id: course-service
+          uri: lb://course-service
+          predicates:
+            - Path=/api/courses/**
+            - Method=GET,PUT,DELETE,POST
+            - Header=Authorization, Bearer (.*)
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/course-service/api/courses/(?<segment>.*), /api/courses/${segment}
+            - AuthorizationHeaderFilter
+
+        - id: grade-service
+          uri: lb://course-service
+          predicates:
+            - Path=/api/grades/**
+            - Method=GET,PUT,DELETE,POST
+            - Header=Authorization, Bearer (.*)
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/grade-service/api/grades/(?<segment>.*), /api/grades/${segment}
+            - AuthorizationHeaderFilter
+
+        - id: student-service
+          uri: lb://student-service
+          predicates:
+            - Path=/api/students/**
+            - Method=GET,PUT,DELETE,POST
+            - Header=Authorization, Bearer (.*)
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/student-service/api/students/(?<segment>.*), /api/students/${segment}
+            - AuthorizationHeaderFilter
+
+        - id: teacher-service
+          uri: lb://teacher-service
+          predicates:
+            - Path=/api/teachers/**
+            - Method=GET,PUT,DELETE,POST
+            - Header=Authorization, Bearer (.*)
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/teacher-service/api/teachers/(?<segment>.*), /api/teachers/${segment}
+            - AuthorizationHeaderFilter
+
         - id: login-service
           uri: lb://login-service
           predicates:
-#           if it didn't work use /login-service/api/users/**
             - Path=/api/users/**
             - Method=GET,PUT,DELETE
             - Header=Authorization, Bearer (.*)
           filters:
             - RemoveRequestHeader=Cookie
-            - RewritePath=/users-service/api/users, /api/users
-#          execute this filter before this route is executed if login fail this route won't execute
+            - RewritePath=/users-service/api/users/(?<segment>.*), /api/users/${segment}
             - AuthorizationHeaderFilter
 
         - id: user-login
@@ -32,7 +85,7 @@ spring:
             - Method=POST
           filters:
             - RemoveRequestHeader=Cookie
-            - RewritePath=/users-service/api/users, /api/users
+            - RewritePath=/users-service/api/users/(?<segment>.*), /api/users/${segment}
 
         - id: login-service-create
           uri: lb://login-service/api/users
@@ -41,13 +94,12 @@ spring:
             - Method=POST
           filters:
             - RemoveRequestHeader=Cookie
-            - RewritePath=/users-service/api/users, /api/users
+            - RewritePath=/users-service/api/users/(?<segment>.*), /api/users/${segment}
 
 eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka
 
-#the same token we heve in login .yml
 token:
   secret: H3(KVfajgJReaZeQb7cdrqBeZfgchvPhkigae2PhjVkYWRlPumnc1wko4pqresDd
