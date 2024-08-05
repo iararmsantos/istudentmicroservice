@@ -1,6 +1,7 @@
 package com.iarasantos.loginservice.config;
 
 import com.iarasantos.loginservice.data.vo.v1.UserRequest;
+import com.iarasantos.loginservice.data.vo.v1.UserResponse;
 import com.iarasantos.loginservice.model.UserEntity;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
@@ -17,6 +18,9 @@ public class ModelMapperConfig {
         propertyMapper.addMapping(UserEntity::getId, UserRequest::setKey);
         TypeMap<UserRequest, UserEntity> propertyMapper2 = modelMapper.createTypeMap(UserRequest.class, UserEntity.class);
         propertyMapper2.addMapping(UserRequest::getKey, UserEntity::setId);
+
+        TypeMap<UserEntity, UserResponse> propertyMapper3 = modelMapper.createTypeMap(UserEntity.class, UserResponse.class);
+        propertyMapper3.addMappings(mapper -> mapper.skip(UserResponse::setId));
 
         return modelMapper;
     }

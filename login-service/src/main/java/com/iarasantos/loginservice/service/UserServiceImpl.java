@@ -9,6 +9,7 @@ import com.iarasantos.loginservice.exceptions.ResourceNotFoundException;
 import com.iarasantos.loginservice.model.UserEntity;
 import com.iarasantos.loginservice.repository.UserRepository;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -45,7 +46,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserResponse> getUsers() {
-        System.out.println(this.modelMapper);
         List<UserEntity> usersList = repository.findAll();
 
         List<UserResponse> users = mapList(usersList, UserResponse.class);
@@ -104,7 +104,9 @@ public class UserServiceImpl implements UserService {
         user.setUserId(UUID.randomUUID().toString());
         user.setPassword(bCryptPasswordEncoder.encode(request.getPassword()));
         user.setCreationDate(new Date());
-        UserResponse vo = this.modelMapper.map(repository.save(user), UserResponse.class);
+        UserEntity userEntity = repository.save(user);
+
+        UserResponse vo = this.modelMapper.map(userEntity, UserResponse.class);
 
         vo.add(linkTo(methodOn(UserController.class).getUser(vo.getUserId())).withSelfRel());
 
@@ -147,7 +149,7 @@ public class UserServiceImpl implements UserService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserEntity user = repository.findByEmail(username).orElseThrow(
                 () -> new ResourceNotFoundException("User with id " + username + " not found!"
-                ));
+        ));
 
         return new User(user.getEmail(), user.getPassword(), true, true, true, true, new ArrayList<>());
     }

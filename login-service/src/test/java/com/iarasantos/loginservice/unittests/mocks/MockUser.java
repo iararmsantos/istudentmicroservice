@@ -68,6 +68,7 @@ public class MockUser {
         user.setLastName("Last Name Test" + number);
         user.setEmail("Email Test" + number);
         user.setPhone("Phone Test" + number);
+        user.setPassword("password" + number);
         user.setRole(Role.STUDENT);
 
         user.setCreationDate(new Date());

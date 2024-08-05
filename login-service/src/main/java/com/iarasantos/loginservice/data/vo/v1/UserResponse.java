@@ -42,4 +42,7 @@ public class UserResponse extends RepresentationModel<UserResponse> implements S
 
     @JsonProperty("creation_date")
     private Date creationDate;
+
+    public void setId(Object o) {
+    }
 }
