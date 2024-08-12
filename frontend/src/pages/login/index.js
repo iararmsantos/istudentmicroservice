@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import graduation from "../../images/graduation-cap.png";
 import { Typography, Box, useTheme } from "@mui/material";
@@ -14,7 +14,8 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import { tokens } from "../../theme";
-import api from "../../services/api";
+import { inputLabelClasses } from "@mui/material/InputLabel";
+import axios from 'axios';
 
 function Copyright(props) {
   return (
@@ -36,28 +37,31 @@ function Copyright(props) {
 const Login = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = {
-      username,
+      email,
       password,
     };
-    console.log(data);
+    console.log({data})
 
     try {
-      const response = await api.post("auth/signin", data);
-      localStorage.setItem("username", username);
-      localStorage.setItem("accessToken", response.data.token);
+      const response = await axios.post("/login", data);      
+      console.log(response)
+      localStorage.setItem("username", email);
+      localStorage.setItem("accessToken", response.headers.token);
 
-      navigate("/dashboard");
+      navigate("/");
     } catch (err) {
-      alert("Login failed. Try again!");
+      console.log(err)
+      alert("Login failed. Try again again!");
     }
   };
+  
   return (
     <Card sx={{ m: "auto", width: 1000, height: "75%" }} alignitems="center">
       <CardContent sx={{ mt: 6 }}>
@@ -120,7 +124,17 @@ const Login = () => {
                   name="username"
                   autoComplete="username"
                   autoFocus
-                  onChange={(e) => setUsername(e.target.value)}
+                  onChange={(e) => setEmail(e.target.value)}
+                  InputLabelProps={{
+                    sx: {
+                      // set the color of the label when not shrinked
+                      color: "white",
+                      [`&.${inputLabelClasses.shrink}`]: {
+                        // set the color of the label when shrinked (usually when the TextField is focused)
+                        color: "white"
+                      }
+                    }
+                  }}
                 />
                 <TextField
                   margin="normal"
@@ -132,10 +146,21 @@ const Login = () => {
                   id="password"
                   autoComplete="current-password"
                   onChange={(e) => setPassword(e.target.value)}
+                  InputLabelProps={{
+                    sx: {
+                      // set the color of the label when not shrinked
+                      color: "white",
+                      [`&.${inputLabelClasses.shrink}`]: {
+                        // set the color of the label when shrinked (usually when the TextField is focused)
+                        color: "white"
+                      }
+                    }
+                  }}
                 />
                 <FormControlLabel
-                  control={<Checkbox value="remember" color="primary" />}
+                  control={<Checkbox value="remember" color='secondary' />}
                   label="Remember me"
+                  
                 />
                 <Button
                   color="secondary"
@@ -153,7 +178,7 @@ const Login = () => {
                     </Link>
                   </Grid>
                   <Grid item>
-                    <Link href="#" variant="body2" color={colors.grey[100]}>
+                    <Link href="signup" variant="body2" color={colors.grey[100]}>
                       {"Don't have an account? Sign Up"}
                     </Link>
                   </Grid>

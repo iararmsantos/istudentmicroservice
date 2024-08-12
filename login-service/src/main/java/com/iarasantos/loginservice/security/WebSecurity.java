@@ -18,6 +18,7 @@ import org.springframework.security.web.access.expression.WebExpressionAuthoriza
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -27,12 +28,15 @@ public class WebSecurity {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final Environment environment;
     private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
+    private final CorsConfigurationSource corsConfigurationSource;
 
     @Autowired
-    public WebSecurity(UserService usersService, BCryptPasswordEncoder bCryptPasswordEncoder, Environment environment) {
+    public WebSecurity(UserService usersService, BCryptPasswordEncoder bCryptPasswordEncoder,
+                       Environment environment, CorsConfigurationSource corsConfigurationSource) {
         this.userService = usersService;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.environment = environment;
+        this.corsConfigurationSource = corsConfigurationSource;
     }
 
     @Bean
@@ -59,6 +63,7 @@ public class WebSecurity {
 //                        .access(gatewayIp))
 
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(corsConfiguration -> corsConfiguration.configurationSource(corsConfigurationSource))
                 .addFilter(authenticationFilter)
                 .authenticationManager(authenticationManager)
                 .sessionManagement((session) -> session

@@ -12,6 +12,9 @@ import View from './pages/view';
 import FAQ from './pages/faq';
 import Calendar from './pages/calendar';
 import CreateStudent from './components/forms/create_students';
+import CreateTeacher from './components/forms/create_teachers';
+import Login from './pages/login';
+import SignUp from './pages/signup';
 
 
 function App() {
@@ -29,12 +32,14 @@ function App() {
               <Route path="/students" element={<Students />} />
               <Route path="create-student" element={<CreateStudent />} />
               <Route path="teachers" element={<Teachers />} />
+              <Route path="create-teacher" element={<CreateTeacher />} />
               <Route path="courses" element={<Courses />} />
               <Route path="grades" element={<Grades />} />
               <Route path="view" element={<View />} />
               <Route path="faq" element={<FAQ />} />
               <Route path="calendar" element={<Calendar />} />
-
+              <Route path="login" element={<Login />} />
+              <Route path="signup" element={<SignUp />} />
             </Routes>
           </main>
         </div>

@@ -44,7 +44,7 @@ public class StudentServiceImpl implements StudentService {
             throw new RequiredObjectIsNullException();
         }
         Student std = this.modelMapper.map(student, Student.class);
-
+        std.setRole(Role.STUDENT);
         std.setCreationDate(new Date());
         StudentVO vo = this.modelMapper.map(repository.save(std), StudentVO.class);
 
