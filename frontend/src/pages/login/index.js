@@ -15,7 +15,7 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import { tokens } from "../../theme";
 import { inputLabelClasses } from "@mui/material/InputLabel";
-import axios from 'axios';
+import useAxios from "../../hooks/useAxios";
 
 function Copyright(props) {
   return (
@@ -37,29 +37,88 @@ function Copyright(props) {
 const Login = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  // const [email, setEmail] = useState("");
+  // const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+});
   const navigate = useNavigate();
+  const { response, error, loading, fetchData} = useAxios();
+
+  //for reference
+  const fetchUsers = () => {
+    fetchData({url: "/api/users", method: "GET"});
+  };
+
+  //post request
+  const login = () => {
+    fetchData({
+      url: "/login",
+      method: "POST",
+      data: formData
+    })
+  }
+
+  const updateUser = () => {
+    fetchData({
+      // url: `/api/users/${userId}`
+      url: `api/users`,
+      method: "PUT",
+      data: formData
+    })
+  }
+
+  const deleteUser = () => {
+    fetchData({
+      // url: `/api/users/${userId}`
+      url: `api/users`,
+      method: "DELETE"
+    })
+  }
+
+  const handleChange = (e) => {
+    setFormData({
+        ...formData,
+        [e.target.name]: e.target.value,
+    });
+};
+
+useEffect(() => {
+  if (response) {
+      localStorage.setItem("username", formData.email);
+      localStorage.setItem("accessToken", response.headers.token);
+      navigate("/");
+  }
+  if (error) {
+      console.error(error);
+      alert("Login failed. Try again!");
+  }
+}, [response, error]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const data = {
-      email,
-      password,
-    };
-    console.log({data})
+    login();
+ 
 
-    try {
-      const response = await axios.post("/login", data);      
-      console.log(response)
-      localStorage.setItem("username", email);
-      localStorage.setItem("accessToken", response.headers.token);
+    // const data = {
+    //   email,
+    //   password,
+    // };
+    // console.log({data})
 
-      navigate("/");
-    } catch (err) {
-      console.log(err)
-      alert("Login failed. Try again again!");
-    }
+    // try {
+    //   const response = await axios.post("/login", data);      
+    //   console.log(response)
+    //   localStorage.setItem("username", email);
+    //   localStorage.setItem("accessToken", response.headers.token);
+
+    //   navigate("/");
+    // } catch (err) {
+    //   //TODO change this to toast message
+    //   console.log(err)
+    //   alert("Login failed. Try again again!");
+    // }
   };
   
   return (
@@ -119,12 +178,12 @@ const Login = () => {
                   margin="normal"
                   required
                   fullWidth
-                  id="username"
+                  id="email"
                   label="Username"
-                  name="username"
-                  autoComplete="username"
+                  name="email"
+                  autoComplete="email"
                   autoFocus
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={handleChange}
                   InputLabelProps={{
                     sx: {
                       // set the color of the label when not shrinked
@@ -145,7 +204,7 @@ const Login = () => {
                   type="password"
                   id="password"
                   autoComplete="current-password"
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={handleChange}
                   InputLabelProps={{
                     sx: {
                       // set the color of the label when not shrinked

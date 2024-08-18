@@ -75,7 +75,7 @@ spring:
             - Header=Authorization, Bearer (.*)
           filters:
             - RemoveRequestHeader=Cookie
-            - RewritePath=/users-service/api/users/(?<segment>.*), /api/users/${segment}
+            - RewritePath=/login-service/api/users/(?<segment>.*), /api/users/${segment}
             - AuthorizationHeaderFilter
 
         - id: user-login
@@ -85,7 +85,7 @@ spring:
             - Method=POST
           filters:
             - RemoveRequestHeader=Cookie
-            - RewritePath=/users-service/api/users/(?<segment>.*), /api/users/${segment}
+            - RewritePath=/login-service/login/(?<segment>.*), /login/${segment}
 
         - id: login-service-create
           uri: lb://login-service/api/users
@@ -94,7 +94,18 @@ spring:
             - Method=POST
           filters:
             - RemoveRequestHeader=Cookie
-            - RewritePath=/users-service/api/users/(?<segment>.*), /api/users/${segment}
+            - RewritePath=/login-service/api/users/(?<segment>.*), /api/users/${segment}
+
+        - id: swagger
+          uri: http://localhost:8080
+          predicates:
+            - Path=/v3/api-docs/**
+            - Path=/swagger-ui/**
+            - Path=/swagger-ui.html
+          filters:
+            - RewritePath=/v3/api-docs/(?<segment>.*), /v3/api-docs/${segment}
+            - RewritePath=/swagger-ui/(?<segment>.*), /swagger-ui/${segment}
+            - RewritePath=/swagger-ui.html, /swagger-ui.html
 
 eureka:
   client:
@@ -103,3 +114,34 @@ eureka:
 
 token:
   secret: H3(KVfajgJReaZeQb7cdrqBeZfgchvPhkigae2PhjVkYWRlPumnc1wko4pqresDd
+
+springdoc:
+  enable-native-support: true
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    config-url: /v3/api-docs/swagger-config
+    urls:
+      - url: /v3/api-docs
+        name: API Gateway Service
+        primaryName: API Gateway Service
+      - url: /login-service/v3/api-docs
+        name: Login Service
+        primaryName: Login Service
+      - url: /student-service/v3/api-docs
+        name: Student Service
+        primaryName: Student Service
+      - url: /course-service/v3/api-docs
+        name: Course Service
+        primaryName: Course Service
+      - url: /grade-service/v3/api-docs
+        name: Grade Service
+        primaryName: Grade Service
+      - url: /parent-service/v3/api-docs
+        name: Parent Service
+        primaryName: Parent Service
+      - url: /teacher-service/v3/api-docs
+        name: Teacher Service
+        primaryName: Teacher Service

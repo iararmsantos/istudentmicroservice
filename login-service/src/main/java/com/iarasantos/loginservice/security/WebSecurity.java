@@ -58,10 +58,12 @@ public class WebSecurity {
 
 
         http.authorizeHttpRequests((auth) -> auth
-                        .requestMatchers(new AntPathRequestMatcher("/api/**"))
-                        .permitAll())
+                        .requestMatchers("/v3/api-docs", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/webjars/**", "/configuration/ui", "/swagger-resources/**","/configuration/security", "/swagger-resources")
+                        .permitAll()
+//                .requestMatchers("/api/**").authenticated()
+                .anyRequest().denyAll())
 //                        .access(gatewayIp))
-
+//                .anyRequest().permitAll())
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(corsConfiguration -> corsConfiguration.configurationSource(corsConfigurationSource))
                 .addFilter(authenticationFilter)
