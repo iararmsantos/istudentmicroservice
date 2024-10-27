@@ -31,16 +31,16 @@ OpenApi, Swagger
 * Javascript, React, Material-UI, Formik
 
 ### Login Page
-![alt text](/images/login)
+<img src="images/login.png" width="450" height="320"/>
 
 ### Signup Page
-![alt text](/images/sigunp)
+<img src="images/signup.png" width="450" height="320"/>
 
 ### Dashboard Page
-![alt text](/images/mockedDashboard)
+<img src="images/mockedDashboard.png" width="450" height="320"/>
 
 ### List of Students Page
-![alt text](/images/viewStudents)
+<img src="images/viewStudents.png" width="450" height="320"/>
 
 ### Create Student Page
-![alt text](/images/createStudent)
+<img src="images/createStudent.png" width="450" height="320"/>
