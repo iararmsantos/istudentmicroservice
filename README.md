@@ -29,3 +29,18 @@ OpenApi, Swagger
 
 ## Frontend
 * Javascript, React, Material-UI, Formik
+
+### Login Page
+![alt text](/images/login)
+
+### Signup Page
+![alt text](/images/sigunp)
+
+### Dashboard Page
+![alt text](/images/mockedDashboard)
+
+### List of Students Page
+![alt text](/images/viewStudents)
+
+### Create Student Page
+![alt text](/images/createStudent)

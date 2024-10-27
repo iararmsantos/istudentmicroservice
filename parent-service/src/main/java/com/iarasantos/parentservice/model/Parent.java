@@ -27,7 +27,7 @@ import org.hibernate.annotations.CreationTimestamp;
 @Builder
 public class Parent {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @JsonProperty("first_name")

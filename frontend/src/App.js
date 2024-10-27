@@ -15,6 +15,7 @@ import CreateStudent from './components/forms/create_students';
 import CreateTeacher from './components/forms/create_teachers';
 import Login from './pages/login';
 import SignUp from './pages/signup';
+import CreateParent from './components/forms/create_parent';
 
 
 function App() {
@@ -40,6 +41,7 @@ function App() {
               <Route path="calendar" element={<Calendar />} />
               <Route path="login" element={<Login />} />
               <Route path="signup" element={<SignUp />} />
+              <Route path="create_parent" element={<CreateParent />} />
             </Routes>
           </main>
         </div>

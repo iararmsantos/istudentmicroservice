@@ -1,68 +1,92 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../../components/Header";
-import { Box, Button, Typography, useTheme } from "@mui/material";
+import { Box, Button, Snackbar, useTheme } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
-import { mockDataTeam } from "../../data/mockData";
-import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
-import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
-import AssignmentTurnedInOutlinedIcon from "@mui/icons-material/AssignmentTurnedInOutlined";
+import useAxios from "../../hooks/useAxios";
+import axios from "axios";
 
 const Students = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  
+  const { response, error, loading, fetchData } = useAxios();
+  const [snackbarState, setSnackbarState] = useState({
+    open: false,
+    message: '',
+    severity: 'info', //success, info, warning, error
+  });
+  console.log(snackbarState)
+  const [students, setStudents] = useState();
+
+  //when click on save of the modal fetchParents again
+  const fetchStudents = () => {
+    fetchData({
+      url: "/api/students",
+      method: "GET", headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
+    })
+  };
+
+  useEffect(() => {
+    fetchStudents();
+    if(error){
+      console.error("Error fetching students:", error);
+      setSnackbarState({
+        open: true,
+        message: `Error fetching students: ${error.status} ${error.statusText}`,
+        severity: "error",
+      })
+  }
+  }, [])
+
+  const studentsResponse = Array.isArray(response?.data) ? response.data : [];
+
+  async function handleDelete(id) {
+    try {
+      await axios.delete(
+        `api/student/${id}`,{
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }}
+      )          
+    } catch (error) {
+      console.error("Error fetching students:", error);
+      // alert(error.message)
+      setSnackbarState({
+        open: true,
+        message: `Error fetching students: ${error.message}`,
+        severity: "error",
+      })      
+    } finally {
+      fetchStudents();
+    }
+  }
 
   const columns = [
-    { field: "userId", headerName: "User Id" },
+    { field: "id", headerName: "User Id", renderCell: (params) => (
+      <a href={`/students/${params.value}`} style={{  color: "inherit" }}>
+        {params.value}
+      </a>
+    ), },
     {
-      field: "name",
+      field: "full_name",
       headerName: "Name",
       flex: 1,
       cellClassName: "name-column--cell",
+      renderCell: (params) => `${params.row.first_name} ${params.row.last_name}`
     },
-    // {
-    //   field: "age",
-    //   headerName: "Age",
-    //   type: "number",
-    //   headerAlign: "left",
-    //   align: "left",
-    // },
     { field: "phone", headerName: "Phone Number", flex: 1 },
     { field: "email", headerName: "Email", flex: 1 },
-    // {
-    //   field: "accessLevel",
-    //   headerName: "Access Level",
-    //   flex: 1,
-    //   headerAlign: "center",
-    //   renderCell: ({ row: { access } }) => {
-    //     return (
-    //       <Box
-    //         width="60%"
-    //         m="0 auto"
-    //         p="5px"
-    //         display="flex"
-    //         justifyContent="center"
-    //         backgroundColor={
-    //           access === "admin"
-    //             ? colors.greenAccent[600]
-    //             : colors.greenAccent[700]
-    //         }
-    //         borderRadius="4px"
-    //       >
-    //         {/* teacher */}
-    //         {access === "admin" && <AdminPanelSettingsOutlinedIcon />}
-    //         {/* student */}
-    //         {access === "manager" && <AssignmentTurnedInOutlinedIcon />}
-    //         {/* parent */}
-    //         {access === "user" && <LockOpenOutlinedIcon />}
-    //         <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-    //           {access}
-    //         </Typography>
-    //       </Box>
-    //     );
-    //   },
-    // },
+    {
+      field: "delete",
+      headerName: "Actions",
+      renderCell: (params) => (
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={() => handleDelete(params.row.id)}
+        >
+          Delete
+        </Button>
+      ),
+    },    
   ];
 
   return (
@@ -124,11 +148,12 @@ const Students = () => {
       >
         <DataGrid
           // checkboxSelection
-          rows={mockDataTeam}
+          rows={studentsResponse}
           columns={columns}
           slots={{ toolbar: GridToolbar }}
         />
       </Box>
+      <Snackbar message={snackbarState.message} open={snackbarState.open} severity={snackbarState.severity}/>
     </Box>
   );
 };

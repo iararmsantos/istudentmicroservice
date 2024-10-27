@@ -6,7 +6,7 @@ const useAxios = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    axios.interceptors.request.use((config) => {
+    axios.interceptors.request.use((config) => {        
         return config;
     }, (error) => {
         return Promise.reject(error);
@@ -24,7 +24,7 @@ const useAxios = () => {
         return () => controller?.abort()
     }, [])
 
-    const fetchData = async ({ url, method, data = { }, params = { } }) => {
+    const fetchData = async ({ url, method, data = { }, headers = { }, params = { } }) => {               
         setLoading(true);
 
         controller.abort();
@@ -34,6 +34,7 @@ const useAxios = () => {
                 url,
                 method,
                 data,
+                headers,
                 params,
                 signal: controller.signal
             })
@@ -44,8 +45,7 @@ const useAxios = () => {
                 console.error("Request cancelled ", error.message);
             } else {
                 setError(error.response ?? error.message)
-            }
-            
+            }            
         } finally {
             setLoading(false)
         }
@@ -55,3 +55,5 @@ const useAxios = () => {
 }
 
 export default useAxios
+
+//source: https://www.youtube.com/watch?v=WtijdoNfzYg

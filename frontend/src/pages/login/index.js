@@ -37,8 +37,6 @@ function Copyright(props) {
 const Login = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  // const [email, setEmail] = useState("");
-  // const [password, setPassword] = useState("");
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -99,26 +97,6 @@ useEffect(() => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     login();
- 
-
-    // const data = {
-    //   email,
-    //   password,
-    // };
-    // console.log({data})
-
-    // try {
-    //   const response = await axios.post("/login", data);      
-    //   console.log(response)
-    //   localStorage.setItem("username", email);
-    //   localStorage.setItem("accessToken", response.headers.token);
-
-    //   navigate("/");
-    // } catch (err) {
-    //   //TODO change this to toast message
-    //   console.log(err)
-    //   alert("Login failed. Try again again!");
-    // }
   };
   
   return (
