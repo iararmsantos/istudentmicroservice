@@ -50,7 +50,7 @@ const useAxios = () => {
             setLoading(false)
         }
     }
-
+console.log({response, error})
     return { response, error, loading, fetchData }
 }
 

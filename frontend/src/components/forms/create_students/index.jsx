@@ -10,9 +10,9 @@ import useAxios from "../../../hooks/useAxios";
 import Popup from "../../popup";
 import CreateParent from "../create_parent";
 import ToastMessage from "../../ToastMessage";
+import ParentSelect from "../../ParentSelect";
 
-const initialValues = {
-  
+const initialValues = {  
     first_name: "",
     last_name: "",
     phone: "",
@@ -24,13 +24,10 @@ const initialValues = {
 };
 
 const transformData = (data) => {
-  // Extract student data
- 
-
   // Extract parents data
   const parents = [];
   Object.keys(data).forEach(key => {
-    const match = key.match(/^parents\[(\d+)\]\.parent_id$/);
+    const match = key.match(/^studentParents\[(\d+)\]\.parent_id$/);
     if (match) {
       const index = parseInt(match[1], 10);
       if (!parents[index]) {
@@ -82,7 +79,6 @@ const CreateStudent = () => {
     severity: 'info', //success, info, warning, error
   })
 
-  //when click on save of the modal fetchParents again
   const fetchParents = () => {
     fetchData({
       url: "/api/parents",
@@ -105,40 +101,46 @@ const CreateStudent = () => {
   const parentsResponse = Array.isArray(response?.data) ? response.data : [];
 
   const handleInput = (e) => {
-    console.log(e.target.name)
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
   };  
 
-  const handleSubmit = (values, {resetForm}) => {    
+  const handleSubmit = async (values, { resetForm }) => {
     const transformedData = transformData(formData);
-console.log({transformedData})
-    fetchData({
-      url: "/api/students",
+  
+    // Start the request
+    await fetchData({
+      url: "/api/student",
       method: "POST",
       data: transformedData,
       headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
-    }).then(() => {
-      if(error){
-        console.error("Error submitting form:", error);
-        setSnackbarState({
-          open: true,
-          message: `Error submitting form: ${error.statusText}`,
-          severity: "error",
-        })
+    });
+  
+    // Check if there was an error
+    if (error) {
+      setSnackbarState({
+        open: true,
+        message: `Error submitting form: ${error.data.error || error.statusText}`,
+        severity: "error",
+      });
+    } else if (response && response.status === 201) {
+      // Handle successful response
+      setSnackbarState({
+        open: true,
+        message: "Student created successfully.",
+        severity: "success",
+      });
+      resetForm({ values: initialValues });
     } else {
-        console.log("Form submitted and reset successfully.");
-        setSnackbarState({
-          open: true,
-          message: "Student created successfully.",
-          severity: "success",
-        })
-        resetForm({ values: initialValues });
-    }  
-    })
-    
+      // Handle unexpected response
+      setSnackbarState({
+        open: true,
+        message: `Unexpected response status: ${response?.statusText || 'Unknown error'}`,
+        severity: "error",
+      });
+    }
   };
 
   return (
@@ -159,9 +161,7 @@ console.log({transformedData})
           setFieldValue,
           resetForm,
         }) =>
-           {
-            console.log(values.studentParents[0])
-            return (
+            (
           <form onSubmit={submitForm}>
             <Box
               display="grid"
@@ -236,41 +236,23 @@ console.log({transformedData})
                 sx={{ gridColumn: "span 2" }}
               />
               {!loading && values.studentParents.map((parent, index) => (
-                <FormControl key={index} fullWidth variant="filled" sx={{ gridColumn: "span 2" }}>
-                  <InputLabel color="primary" sx={{
-                    color: touched.studentParents  && errors.studentParents  && errors.studentParents [index]
-                      ? 'error.main'
-                      : 'primary'
-                  }}>Select Parent</InputLabel>
-                  <Select
-                    label={`Parent ${index + 1}`}                    
-                    name={`studentParents[${index}].parent_id`}
-                    value={parent.parent_id}
-                    onChange={(e) => {
-                      handleChange(e);
-                      handleInput(e)
-                    }}
-                    onBlur={handleBlur}
-                  >
-                    {parentsResponse && parentsResponse.length > 0 ?
-                      (parentsResponse?.map((item, index) => (
-                        <MenuItem key={index} value={index}>{`${item.first_name} ${item.last_name}`} sx</MenuItem>
-                      ))) : (
-                        <MenuItem disabled>No parents available</MenuItem>
-                      )}
-                    {/* Add more parent options dynamically */}
-                  </Select>
-                  {touched.parents && errors.parents && errors.parents[index] && (
-                    <div style={{ color: 'red', fontSize: '13px', margin: '5px 10px' }}>{errors.parents[index].parent_id}</div>
-                  )}
-                </FormControl>
+                <ParentSelect
+                index={index}
+                touched={touched}
+                errors={errors}
+                parent={parent}
+                options={parentsResponse}
+                handleChange={handleChange}
+                handleBlur={handleBlur}
+                handleInput={handleInput}
+              />
               ))}
               <Button
                 color="secondary"
                 variant="contained"
                 onClick={() => {
                   // Update the parents array using setFieldValue
-                  setFieldValue("parents", [...values.parents, { parent_id: "" }]);
+                  setFieldValue("studentParents", [...values.studentParents, { parent_id: "" }]);
                 }}
               >
                 Add Another Parent
@@ -289,7 +271,7 @@ console.log({transformedData})
               </Button>
             </Box>
           </form>
-        )}}
+        )}
       </Formik>
       <Popup openPopup={openPopup} setOpenPopup={setOpenPopup} title={"Create Parent"} refresh={fetchParents}>
         <CreateParent />
