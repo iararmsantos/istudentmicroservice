@@ -1,7 +1,6 @@
 package com.iarasantos.studentservice.service;
 
 import com.iarasantos.studentservice.controller.StudentController;
-import com.iarasantos.studentservice.data.vo.v1.StudentParentRequest;
 import com.iarasantos.studentservice.data.vo.v1.StudentVO;
 import com.iarasantos.studentservice.exceptions.RequiredObjectIsNullException;
 import com.iarasantos.studentservice.exceptions.ResourceNotFoundException;
@@ -51,6 +50,8 @@ public class StudentServiceImpl implements StudentService {
         std.setCreationDate(new Date());
         StudentVO vo = this.modelMapper.map(repository.save(std), StudentVO.class);
 
+        List<StudentParent> studentParents = studentParentsService.createParents(student, vo.getKey());
+        vo.setStudentParents(studentParents);
         //hateoas
         vo.add(linkTo(methodOn(StudentController.class).getStudent(vo.getKey())).withSelfRel());
 
@@ -114,25 +115,6 @@ public class StudentServiceImpl implements StudentService {
         vo.add(linkTo(methodOn(StudentController.class).getStudent(vo.getKey())).withSelfRel());
 
         return vo;
-    }
-
-    @Override
-    public StudentParentRequest createStudentWithParents(StudentParentRequest request) {
-        Student student = request.getStudent();
-        student.setRole(Role.STUDENT);
-        student.setCreationDate(new Date());
-
-        Student saved = repository.save(student);
-        List<StudentParent> parents = request.getParents().stream()
-                .map(parent -> mapToParent(parent, saved)).toList();
-
-        List<StudentParent> newParents =  parents.stream().map(p -> parentRepository.save(p)).toList();
-        StudentParentRequest str = new StudentParentRequest();
-        str.setStudent(saved);
-        str.setParents(newParents);
-
-        //TODO: implemement hateoas
-        return  str;
     }
 
     private StudentParent mapToParent(StudentParent parent, Student student) {

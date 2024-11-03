@@ -83,36 +83,6 @@ public class StudentController {
         return service.createStudent(student);
     }
 
-    //TODO: create another controller to work with studentParents??
-    @PostMapping(value = "/parents",
-            produces = {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
-                    MediaType.APPLICATION_YML},
-            consumes = {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
-                    MediaType.APPLICATION_YML})
-    @Operation(summary = "Create a student with parents",
-            description = "Create a student with parents by passing in a JSON, XML, or YAML representation of a student",
-            tags = {"Students"},
-            responses = {
-                    @ApiResponse(description = "Success", responseCode = "200",
-                            content = @Content(
-                                    schema = @Schema(implementation = StudentVO.class))
-                    ),
-                    @ApiResponse(description = "No Content", responseCode = "204",
-                            content = @Content),
-                    @ApiResponse(description = "Bad request", responseCode = "400",
-                            content = @Content),
-                    @ApiResponse(description = "Unauthorized", responseCode = "401",
-                            content = @Content),
-                    @ApiResponse(description = "Not Found", responseCode = "404",
-                            content = @Content),
-                    @ApiResponse(description = "Internal Server Error", responseCode = "500",
-                            content = @Content)
-            })
-    public StudentParentRequest createStudentWithParents(
-            @Valid @RequestBody StudentParentRequest studentParentRequest) {
-        return service.createStudentWithParents(studentParentRequest);
-    }
-
     @GetMapping(value = "/{id}",
             produces = {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
                     MediaType.APPLICATION_YML})

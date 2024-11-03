@@ -12,25 +12,20 @@ import CreateParent from "../create_parent";
 import ToastMessage from "../../ToastMessage";
 
 const initialValues = {
-  student: {
+  
     first_name: "",
     last_name: "",
     phone: "",
     email: "",
-  },
-  parents: [
+  
+    studentParents: [
     { parent_id: "" },   
   ],
 };
 
 const transformData = (data) => {
   // Extract student data
-  const student = {
-    first_name: data['student.first_name'] || '',
-    last_name: data['student.last_name'] || '',
-    phone: data['student.phone'] || '',
-    email: data['student.email'] || ''
-  };
+ 
 
   // Extract parents data
   const parents = [];
@@ -46,21 +41,22 @@ const transformData = (data) => {
   });
 
   return {
-    student,
-    parents
+    first_name: data['first_name'] || '',
+    last_name: data['last_name'] || '',
+    phone: data['phone'] || '',
+    email: data['email'] || '',
+    studentParents: parents
   };
 };
 
 const phoneRegExp = /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/im;
 
 const userSchema = yup.object().shape({
-  student: yup.object().shape({
-    first_name: yup.string().required("First name is required"),
-    last_name: yup.string().required("Last name is required"),
-    phone: yup.string().matches(phoneRegExp, "Phone number is not valid.").required("Phone number is required"),
-    email: yup.string().email("Email is not valid.").required("Email is required"),
-  }),
-  parents: yup.array().of(
+  first_name: yup.string().required("First name is required"),
+  last_name: yup.string().required("Last name is required"),
+  phone: yup.string().matches(phoneRegExp, "Phone number is not valid.").required("Phone number is required"),
+  email: yup.string().email("Email is not valid.").required("Email is required"),
+  studentParents: yup.array().of(
     yup.object().shape({
       parent_id: yup.number().required("Parent ID is required")
     })
@@ -71,10 +67,10 @@ const CreateStudent = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
   
   const [formData, setFormData] = useState({
-    'student.first_name': '',
-    'student.last_name': '',
-    'student.phone': '',
-    'student.email': '',
+    'first_name': '',
+    'last_name': '',
+    'phone': '',
+    'email': '',
     'parents[0].parent_id': '',
     'parents[1].parent_id': ''
   });
@@ -118,29 +114,31 @@ const CreateStudent = () => {
 
   const handleSubmit = (values, {resetForm}) => {    
     const transformedData = transformData(formData);
-
+console.log({transformedData})
     fetchData({
-      url: "/api/students/parents",
+      url: "/api/students",
       method: "POST",
       data: transformedData,
       headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
+    }).then(() => {
+      if(error){
+        console.error("Error submitting form:", error);
+        setSnackbarState({
+          open: true,
+          message: `Error submitting form: ${error.statusText}`,
+          severity: "error",
+        })
+    } else {
+        console.log("Form submitted and reset successfully.");
+        setSnackbarState({
+          open: true,
+          message: "Student created successfully.",
+          severity: "success",
+        })
+        resetForm({ values: initialValues });
+    }  
     })
-    if(error){
-      console.error("Error submitting form:", error);
-      setSnackbarState({
-        open: true,
-        message: `Error submitting form: ${error.statusText}`,
-        severity: "error",
-      })
-  } else {
-      console.log("Form submitted and reset successfully.");
-      setSnackbarState({
-        open: true,
-        message: "Student created successfully.",
-        severity: "success",
-      })
-      resetForm({ values: initialValues });
-  }  
+    
   };
 
   return (
@@ -161,7 +159,9 @@ const CreateStudent = () => {
           setFieldValue,
           resetForm,
         }) =>
-           (
+           {
+            console.log(values.studentParents[0])
+            return (
           <form onSubmit={submitForm}>
             <Box
               display="grid"
@@ -181,10 +181,10 @@ const CreateStudent = () => {
                   handleChange(e);
                   handleInput(e)
                 }}
-                value={values.student.first_name}
-                name="student.first_name"
-                error={!!touched.student?.first_name && !!errors.student?.first_name}
-                helperText={touched.student?.first_name && errors.student?.first_name}
+                value={values.first_name}
+                name="first_name"
+                error={!!touched.first_name && !!errors.first_name}
+                helperText={touched.first_name && errors.first_name}
                 sx={{ gridColumn: "span 2" }}
               />
               <TextField
@@ -197,10 +197,10 @@ const CreateStudent = () => {
                   handleChange(e);
                   handleInput(e)
                 }}
-                value={values.student.last_name}
-                name="student.last_name"
-                error={!!touched.student?.last_name && !!errors.student?.last_name}
-                helperText={touched.student?.last_name && errors.student?.last_name}
+                value={values.last_name}
+                name="last_name"
+                error={!!touched.last_name && !!errors.last_name}
+                helperText={touched.last_name && errors.last_name}
                 sx={{ gridColumn: "span 2" }}
               />
               <TextField
@@ -213,10 +213,10 @@ const CreateStudent = () => {
                   handleChange(e);
                   handleInput(e)
                 }}
-                value={values.student.phone}
-                name="student.phone"
-                error={!!touched.student?.phone && !!errors.student?.phone}
-                helperText={touched.student?.phone && errors.student?.phone}
+                value={values.phone}
+                name="phone"
+                error={!!touched.phone && !!errors.phone}
+                helperText={touched.phone && errors.phone}
                 sx={{ gridColumn: "span 2" }}
               />
               <TextField
@@ -229,22 +229,22 @@ const CreateStudent = () => {
                   handleChange(e);
                   handleInput(e)
                 }}
-                value={values.student.email}
-                name="student.email"
-                error={!!touched.student?.email && !!errors.student?.email}
-                helperText={touched.student?.email && errors.student?.email}
+                value={values.email}
+                name="email"
+                error={!!touched.email && !!errors.email}
+                helperText={touched.email && errors.email}
                 sx={{ gridColumn: "span 2" }}
               />
-              {!loading && values.parents.map((parent, index) => (
+              {!loading && values.studentParents.map((parent, index) => (
                 <FormControl key={index} fullWidth variant="filled" sx={{ gridColumn: "span 2" }}>
                   <InputLabel color="primary" sx={{
-                    color: touched.parents && errors.parents && errors.parents[index]
+                    color: touched.studentParents  && errors.studentParents  && errors.studentParents [index]
                       ? 'error.main'
                       : 'primary'
                   }}>Select Parent</InputLabel>
                   <Select
-                    label={`Parent ${index + 1}`}
-                    name={`parents[${index}].parent_id`}
+                    label={`Parent ${index + 1}`}                    
+                    name={`studentParents[${index}].parent_id`}
                     value={parent.parent_id}
                     onChange={(e) => {
                       handleChange(e);
@@ -289,7 +289,7 @@ const CreateStudent = () => {
               </Button>
             </Box>
           </form>
-        )}
+        )}}
       </Formik>
       <Popup openPopup={openPopup} setOpenPopup={setOpenPopup} title={"Create Parent"} refresh={fetchParents}>
         <CreateParent />

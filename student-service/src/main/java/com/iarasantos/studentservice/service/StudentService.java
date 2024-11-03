@@ -15,6 +15,4 @@ public interface StudentService {
     public void deleteStudent(Long studentId);
 
     public StudentVO updateStudent(StudentVO request);
-
-    public StudentParentRequest createStudentWithParents(StudentParentRequest studentParentRequest);
 }
