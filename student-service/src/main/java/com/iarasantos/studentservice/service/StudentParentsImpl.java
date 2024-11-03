@@ -1,9 +1,6 @@
 package com.iarasantos.studentservice.service;
 
-import com.iarasantos.studentservice.data.vo.v1.StudentParentRequest;
 import com.iarasantos.studentservice.data.vo.v1.StudentVO;
-import com.iarasantos.studentservice.exceptions.ResourceNotFoundException;
-import com.iarasantos.studentservice.model.Role;
 import com.iarasantos.studentservice.model.Student;
 import com.iarasantos.studentservice.model.StudentParent;
 import com.iarasantos.studentservice.repository.StudentParentsRepository;
@@ -11,8 +8,6 @@ import com.iarasantos.studentservice.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,28 +27,6 @@ public class StudentParentsImpl implements StudentParentsService {
         studentParents.forEach(item -> parentRepository.delete(item));
     }
 
-
-
-
-//    VERIFY IF I AM USING THE BELLOW METHODS
-
-    @Override
-    public StudentParentRequest createStudentWithParents(StudentParentRequest request) {
-        Student student = request.getStudent();
-        student.setRole(Role.STUDENT);
-        student.setCreationDate(new Date());
-
-        Student saved = repository.save(student);
-        List<StudentParent> parents = request.getParents().stream()
-                .map(parent -> mapToParent(parent, saved)).toList();
-
-        List<StudentParent> newParents = parents.stream().map(p -> parentRepository.save(p)).toList();
-        StudentParentRequest str = new StudentParentRequest();
-        str.setStudent(saved);
-        str.setParents(newParents);
-        return str;
-    }
-
     @Override
     public List<StudentParent> createParents(StudentVO studentVO, long studentId) {
 
@@ -62,6 +35,34 @@ public class StudentParentsImpl implements StudentParentsService {
                 .map(parentRepository::save)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<StudentParent> updateParents(List<StudentParent> studentParents, long studentId) {
+        List<StudentParent> parents = parentRepository.findByStudentId(studentId);
+
+        if (parents.isEmpty()) {
+            // If no parents are found, save all new ones in studentParents
+            studentParents.forEach(parentRepository::save);
+        } else {
+            // Update the existing records with new data from studentParents
+            for (int i = 0; i < parents.size(); i++) {
+                StudentParent existingParent = parents.get(i);
+                if (i < studentParents.size()) {
+                    StudentParent newParent = studentParents.get(i);
+                    // Update fields here as needed; assuming parentId is the field to update
+                    existingParent.setParentId(newParent.getParentId());
+                    parentRepository.save(existingParent);
+                }
+            }
+
+            // If there are more new parents than existing ones, save them
+            if (studentParents.size() > parents.size()) {
+                studentParents.subList(parents.size(), studentParents.size()).forEach(parentRepository::save);
+            }
+        }
+        return parents;
+    }
+
 
     private StudentParent mapToParent(StudentParent parent, Student student) {
         return StudentParent.builder()

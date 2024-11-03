@@ -12,7 +12,6 @@ import com.iarasantos.studentservice.repository.StudentRepository;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +51,7 @@ public class StudentServiceImpl implements StudentService {
 
         List<StudentParent> studentParents = studentParentsService.createParents(student, vo.getKey());
         vo.setStudentParents(studentParents);
+
         //hateoas
         vo.add(linkTo(methodOn(StudentController.class).getStudent(vo.getKey())).withSelfRel());
 
@@ -65,9 +65,13 @@ public class StudentServiceImpl implements StudentService {
                 (student) -> this.modelMapper.map(student, StudentVO.class)
         ).collect(Collectors.toList());
 
+        studentsVO.forEach(studentVO -> {
+            List<StudentParent> parents = parentRepository.findByStudentId(studentVO.getKey());
+            studentVO.setStudentParents(parents);
+        });
+
         //hateoas
         studentsVO
-                .stream()
                 .forEach(s -> s
                         .add(linkTo(methodOn(StudentController.class)
                                 .getStudent(s.getKey())).withSelfRel()));
@@ -79,6 +83,10 @@ public class StudentServiceImpl implements StudentService {
         Student student = repository.findById(studentId).orElseThrow(
                 () -> new ResourceNotFoundException("Student with id " + studentId + " not found!"));
         StudentVO vo = this.modelMapper.map(student, StudentVO.class);
+
+        List<StudentParent> parents = parentRepository.findByStudentId(vo.getKey());
+        vo.setStudentParents(parents);
+
         //hateoas
         vo.add(linkTo(methodOn(StudentController.class).getStudent(studentId)).withSelfRel());
         return vo;
@@ -91,8 +99,6 @@ public class StudentServiceImpl implements StudentService {
         repository.deleteById(studentId);
 
         studentParentsService.deleteStudentParents(studentId);
-//        parentRepository.deleteById(student.getId());
-
     }
 
     @Override
@@ -110,6 +116,9 @@ public class StudentServiceImpl implements StudentService {
         student.setRole(Role.STUDENT);
 
         StudentVO vo = this.modelMapper.map(repository.save(student), StudentVO.class);
+
+        List<StudentParent> parents = studentParentsService.updateParents(request.getStudentParents(), vo.getKey());
+        vo.setStudentParents(parents);
 
         //hateoas
         vo.add(linkTo(methodOn(StudentController.class).getStudent(vo.getKey())).withSelfRel());

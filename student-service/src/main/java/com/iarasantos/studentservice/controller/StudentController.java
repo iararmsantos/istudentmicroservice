@@ -1,7 +1,6 @@
 package com.iarasantos.studentservice.controller;
 
 import com.iarasantos.common.utilcommon.util.MediaType;
-import com.iarasantos.studentservice.data.vo.v1.StudentParentRequest;
 import com.iarasantos.studentservice.data.vo.v1.StudentVO;
 import com.iarasantos.studentservice.service.StudentService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -55,7 +54,6 @@ public class StudentController {
                             content = @Content)
             })
     public List<StudentVO> getStudents() {
-        //TODO: get studentparents then the return will be StudentParentRequest
         return service.getStudents();
     }
 
@@ -107,7 +105,6 @@ public class StudentController {
             })
     public StudentVO getStudent(@PathVariable("id") Long studentId) {
         return service.getStudentById(studentId);
-        //TODO: get studentParent the  return will StudentParentRequest
     }
 
     @DeleteMapping(value = "/{id}")
@@ -128,7 +125,6 @@ public class StudentController {
             })
     public void deleteStudent(@PathVariable("id") Long studentId) {
         service.deleteStudent(studentId);
-        //TODO: have to delete parent
     }
 
     @PutMapping(
@@ -156,7 +152,5 @@ public class StudentController {
             })
     public StudentVO updateStudent(@RequestBody StudentVO request) {
         return service.updateStudent(request);
-        //update parentId???
-        // receive and return StudentParentRequest
     }
 }
