@@ -9,7 +9,7 @@ import InputLabel from "@mui/material/InputLabel";
 import useAxios from "../../../hooks/useAxios";
 import Popup from "../../popup";
 import CreateParent from "../create_parent";
-import Snackbar from "../../ToastMessage";
+import ToastMessage from "../../ToastMessage";
 
 const initialValues = {
   student: {
@@ -294,7 +294,7 @@ const CreateStudent = () => {
       <Popup openPopup={openPopup} setOpenPopup={setOpenPopup} title={"Create Parent"} refresh={fetchParents}>
         <CreateParent />
       </Popup>
-      <Snackbar message={snackbarState.message} isOpen={snackbarState.open} severity={snackbarState.severity}/>
+      <ToastMessage message={snackbarState.message} isOpen={snackbarState.open} severity={snackbarState.severity} onClose={() => setSnackbarState(prev => ({...prev, open:false}))}/>
     </Box>
   );
 };

@@ -33,6 +33,9 @@ public class StudentServiceImpl implements StudentService {
     @Autowired
     private StudentParentsRepository parentRepository;
 
+    @Autowired
+    private StudentParentsService studentParentsService;
+
     public StudentServiceImpl() {
         modelMapper = new ModelMapper();
         propertyMapping();
@@ -85,7 +88,10 @@ public class StudentServiceImpl implements StudentService {
         Student student = repository.findById(studentId).orElseThrow(
                 () -> new ResourceNotFoundException("Student with id " + studentId + " not found!"));
         repository.deleteById(studentId);
-        parentRepository.deleteById(student.getId());
+
+        studentParentsService.deleteStudentParents(studentId);
+//        parentRepository.deleteById(student.getId());
+
     }
 
     @Override

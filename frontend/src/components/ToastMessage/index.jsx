@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Snackbar from '@mui/material/Snackbar';
 import { Alert } from '@mui/material';
 
-export default function ToastMessage({message, isOpen, severity}) {
+export default function ToastMessage({message, isOpen, severity, onClose}) {
     const [open, setOpen] = useState(isOpen);
 
     useEffect(() => {
@@ -18,13 +18,17 @@ export default function ToastMessage({message, isOpen, severity}) {
     }
 
     setOpen(false);
+
+    if (onClose) {
+        onClose();
+    }
   };
     return (
         <div>
             <Snackbar
                 anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
                 open={open}
-                autoHideDuration={6000}
+                autoHideDuration={3000}
                 onClose={handleClose}
             >
                 <Alert

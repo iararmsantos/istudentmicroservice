@@ -5,6 +5,7 @@ import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import useAxios from "../../hooks/useAxios";
 import axios from "axios";
+import ToastMessage from "../../components/ToastMessage";
 
 const Students = () => {
   const theme = useTheme();
@@ -15,7 +16,6 @@ const Students = () => {
     message: '',
     severity: 'info', //success, info, warning, error
   });
-  console.log(snackbarState)
   const [students, setStudents] = useState();
 
   //when click on save of the modal fetchParents again
@@ -28,8 +28,7 @@ const Students = () => {
 
   useEffect(() => {
     fetchStudents();
-    if(error){
-      console.error("Error fetching students:", error);
+    if(error){      
       setSnackbarState({
         open: true,
         message: `Error fetching students: ${error.status} ${error.statusText}`,
@@ -43,12 +42,16 @@ const Students = () => {
   async function handleDelete(id) {
     try {
       await axios.delete(
-        `api/student/${id}`,{
+        `api/students/${id}`,{
         headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }}
-      )          
-    } catch (error) {
-      console.error("Error fetching students:", error);
-      // alert(error.message)
+      ).then(() => { 
+      setSnackbarState({
+        open: true,
+        message: `Student deleted successfully`,
+        severity: "success",
+      })      
+      })          
+    } catch (error) {      
       setSnackbarState({
         open: true,
         message: `Error fetching students: ${error.message}`,
@@ -153,7 +156,7 @@ const Students = () => {
           slots={{ toolbar: GridToolbar }}
         />
       </Box>
-      <Snackbar message={snackbarState.message} open={snackbarState.open} severity={snackbarState.severity}/>
+      <ToastMessage message={snackbarState.message} isOpen={snackbarState.open} severity={snackbarState.severity} onClose={() => setSnackbarState(prev => ({...prev, open:false}))}/>
     </Box>
   );
 };
