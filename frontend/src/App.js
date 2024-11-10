@@ -14,7 +14,6 @@ import Calendar from './pages/calendar';
 import CreateParent from './forms/create_parent';
 import Login from './pages/login';
 import SignUp from './pages/signup';
-import StudentForm from './forms/StudentForm';
 import CreateTeacher from './forms/create_teachers';
 import CreateStudent from './forms/create_students';
 

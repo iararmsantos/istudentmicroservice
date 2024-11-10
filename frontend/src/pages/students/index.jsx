@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from "react";
 import Header from "../../components/Header";
-import { Box, Button, Snackbar, useTheme } from "@mui/material";
+import { Box, Button, useTheme } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import useAxios from "../../hooks/useAxios";
 import axios from "axios";
 import ToastMessage from "../../components/ToastMessage";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Students = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const { response, error, loading, fetchData } = useAxios();
+  const { response, error, fetchData } = useAxios();
   const [snackbarState, setSnackbarState] = useState({
     open: false,
     message: '',

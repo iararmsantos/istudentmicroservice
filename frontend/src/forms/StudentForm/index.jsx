@@ -1,27 +1,15 @@
 import { Box, Button, useMediaQuery } from '@mui/material';
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { Field, Form } from 'react-final-form';
 import TextInputAdapter from '../../components/TextInputAdapter';
 import SelectAdapter from '../../components/SelectAdapter';
-import useAxios from '../../hooks/useAxios';
 import {FieldArray} from 'react-final-form-arrays';
 import arrayMutators from 'final-form-arrays';
 import { required, validEmail, validPhone } from '../../components/validation';
 
-const initialValues = {  
-  first_name: "",
-  last_name: "",
-  phone: "",
-  email: "",
-
-  studentParents: [
-  { parent_id: "" },   
-],
-};
-
-const StudentForm = ({onSubmit, openCreateParents, parentOptions}) => {
+const StudentForm = ({onSubmit, openCreateParents, parentOptions, initialValues, isEdit}) => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
-  
+
   return (
     <Form
       onSubmit={onSubmit}
@@ -33,7 +21,7 @@ const StudentForm = ({onSubmit, openCreateParents, parentOptions}) => {
         getState
       },
         } = renderProps;
-        const studentParents = getState().values.studentParents || [];
+        const studentParents = getState().values?.studentParents || [];
         return (
           <form onSubmit={handleSubmit}>
             <Box
@@ -106,7 +94,7 @@ const StudentForm = ({onSubmit, openCreateParents, parentOptions}) => {
             </Box>
             <Box display="flex" justifyContent="end" mt="50px">
               <Button type="submit" color="secondary" variant="contained">
-                Create New Student
+                {isEdit ? "Save Student" : "Create New Student"}
               </Button>
             </Box>
           </form>

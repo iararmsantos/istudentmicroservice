@@ -8,6 +8,8 @@ import com.iarasantos.studentservice.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,19 +41,27 @@ public class StudentParentsImpl implements StudentParentsService {
     @Override
     public List<StudentParent> updateParents(List<StudentParent> studentParents, long studentId) {
         List<StudentParent> parents = parentRepository.findByStudentId(studentId);
+        List<StudentParent> savedParents = new ArrayList<>();
 
         if (parents.isEmpty()) {
             // If no parents are found, save all new ones in studentParents
-            studentParents.forEach(parentRepository::save);
+
+            studentParents.forEach(parent -> {
+                parent.setStudentId(studentId);
+                savedParents.add(parentRepository.save(parent));
+            });
+
         } else {
             // Update the existing records with new data from studentParents
             for (int i = 0; i < parents.size(); i++) {
                 StudentParent existingParent = parents.get(i);
                 if (i < studentParents.size()) {
                     StudentParent newParent = studentParents.get(i);
+                    newParent.setStudentId(studentId);
                     // Update fields here as needed; assuming parentId is the field to update
                     existingParent.setParentId(newParent.getParentId());
-                    parentRepository.save(existingParent);
+                    studentParents.forEach(parent -> savedParents.add(parentRepository.save(existingParent)));
+
                 }
             }
 
@@ -60,7 +70,7 @@ public class StudentParentsImpl implements StudentParentsService {
                 studentParents.subList(parents.size(), studentParents.size()).forEach(parentRepository::save);
             }
         }
-        return parents;
+        return savedParents;
     }
 
 

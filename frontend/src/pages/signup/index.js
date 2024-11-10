@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Typography, Box, useTheme, Select, FormControl, MenuItem } from "@mui/material";
+import { Typography, Box, Select, FormControl, MenuItem } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
@@ -10,7 +10,6 @@ import Grid from "@mui/material/Grid";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import { tokens } from "../../theme";
 import InputLabel, { inputLabelClasses } from "@mui/material/InputLabel";
 import axios from 'axios';
 
@@ -32,8 +31,6 @@ function Copyright(props) {
   );
 }
 const SignUp = () => {
-  const theme = useTheme();
-  const colors = tokens(theme.palette.mode);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");

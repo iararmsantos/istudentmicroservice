@@ -1,30 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { Box, Button, TextField } from "@mui/material";
-import { Formik } from "formik";
-import * as yup from "yup";
-import useMediaQuery from "@mui/material/useMediaQuery";
+import React, { useCallback, useEffect, useState } from "react";
+import { Box } from "@mui/material";
 import CreateParent from "../create_parent";
-import { useLocation, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import StudentForm from "../StudentForm";
 import useAxios from "../../hooks/useAxios";
 import Popup from '../../components/Popup'
 import Header from '../../components/Header'
 import ToastMessage from '../../components/ToastMessage'
 import axios from "axios";
-
-// const phoneRegExp = /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/im;
-
-// const userSchema = yup.object().shape({
-//   first_name: yup.string().required("First name is required"),
-//   last_name: yup.string().required("Last name is required"),
-//   phone: yup.string().matches(phoneRegExp, "Phone number is not valid.").required("Phone number is required"),
-//   email: yup.string().email("Email is not valid.").required("Email is required"),
-//   studentParents: yup.array().of(
-//     yup.object().shape({
-//       parent_id: yup.number().required("Parent ID is required")
-//     })
-//   ).required("At least one parent must be selected")
-// });
 
 const CreateStudent = () => {    
   const { response, error, loading, fetchData } = useAxios();
@@ -35,32 +18,49 @@ const CreateStudent = () => {
     severity: 'info', //success, info, warning, error
   })
   const {studentId} = useParams();
-  const isEdit = studentId > 0;
-  const location = useLocation();
-  const studentData = location.state?.studentData; 
+  const isEdit = studentId > 0; 
+  const navigate = useNavigate();
+  const [initialValues, setInitialValues] = useState({ 
+    id: "", 
+    first_name: "",
+    last_name: "",
+    phone: "",
+    email: "",
+    studentParents: [
+      { parent_id: "" },   
+    ],
+  });
 
-  const fetchParents = () => {
-    fetchData({
-      url: "/api/parents",
-      method: "GET", 
-      headers: { 
-        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
-        'Cache-Control': 'no-cache',
-      }
-    });
-  };
+  const fetchParents = useCallback(() => 
+    {
+      fetchData({
+        url: "/api/parents",
+        method: "GET", 
+        headers: { 
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+          'Cache-Control': 'no-cache',
+        }
+      });
+    })
 
   useEffect(() => {
-    fetchParents();    
-    if(error){
-      console.error("Error fetching parents:", error);
-      setSnackbarState({
-        open: true,
-        message: `Error fetching parents: ${error.status} ${error.statusText}`,
-        severity: "error",
-      })
-  } 
+    if (studentId !== '0' && isEdit) {
+      loadStudent();
+    }
+
+    fetchParents(); 
+  
   }, [])
+
+useEffect(() => {
+  if (error) {  
+    setSnackbarState({
+      open: true,
+      message: `Error fetching data: ${error.status} \"${error.data.path}\" ${error.statusText}`,
+      severity: "error",
+    });
+  }
+}, [error]);
 
   const parentsResponse = Array.isArray(response?.data) ? response.data : [];
 
@@ -78,6 +78,33 @@ const CreateStudent = () => {
     });
   };
 
+  async function loadStudent() {
+    try {
+      const response = await fetchStudent({
+        url: `/api/students/${studentId}`,
+        method: "GET",
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
+      });      
+      setInitialValues({
+        id: response.id,
+        first_name: response.first_name,
+        last_name: response.last_name,
+        phone: response.phone,
+        email: response.email,
+        studentParents: response.studentParents?.length 
+        ? response.studentParents
+        : [{ parent_id: "" }],
+      });
+    } catch (error) {
+      setSnackbarState({
+        open: true,
+        message: `Error recovering student: ${error.message}`,
+        severity: "error",
+      });
+      navigate('/students');  
+    }
+  }
+
   const createStudent = async (formData) => {
     try {
       const response = await fetchStudent({
@@ -93,15 +120,47 @@ const CreateStudent = () => {
     }
   };
 
+  const updateStudent = async (formData) => {
+    try {
+      const response = await fetchStudent({
+        url: "/api/students",
+        method: "PUT",
+        data: formData,
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
+      });
+      return response;
+    } catch (error) {
+      console.error("Error creating parent:", error);
+      throw error; // Allows handleSubmit to catch this
+    }
+  };
+
   const handleSubmit = async (values, form) => {
-    createStudent(values)
+    if (isEdit) {
+      updateStudent(values)
+    .then(() => {
+      setSnackbarState({
+        open: true,
+        message: "Student updated successfully.",
+        severity: "success",
+      });      
+      loadStudent();
+    })
+    .catch(error => {
+      setSnackbarState({
+        open: true,
+        message: `Error submitting form: ${error.message}`,
+        severity: "error",
+      });      
+    })
+    } else {
+      createStudent(values)
     .then(() => {
       setSnackbarState({
         open: true,
         message: "Student created successfully.",
         severity: "success",
-      });
-      console.log("Form submitted and reset successfully.");
+      });      
       form.reset();
     })
     .catch(error => {
@@ -109,15 +168,15 @@ const CreateStudent = () => {
         open: true,
         message: `Error submitting form: ${error.message}`,
         severity: "error",
-      });
-      console.error("Error submitting form:", error.message);
+      });      
     })
+    }
   };
 
   return (
     <Box m="20px">
       <Header title={isEdit ? "Edit Student" : "Create Student"} subtitle={isEdit ? "Update Student Information" : "Create a New Student"} />
-      <StudentForm onSubmit={handleSubmit} openCreateParents={setOpenPopup} parentOptions={parentOptions}/>
+      <StudentForm onSubmit={handleSubmit} openCreateParents={setOpenPopup} parentOptions={parentOptions} initialValues={initialValues} isEdit={isEdit}/>
       
       <Popup openPopup={openPopup} setOpenPopup={setOpenPopup} title={"Create Parent"} >
         <CreateParent onSave={() => {

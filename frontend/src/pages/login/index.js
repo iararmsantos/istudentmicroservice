@@ -92,7 +92,7 @@ useEffect(() => {
       console.error(error);
       alert("Login failed. Try again!");
   }
-}, [response, error]);
+}, [response, error, formData, navigate]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();

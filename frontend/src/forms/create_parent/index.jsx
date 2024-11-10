@@ -1,6 +1,5 @@
 import { useTheme } from "@mui/material";
 import React, {  useState } from "react";
-import { tokens } from "../../theme";
 import { Box, Button, TextField } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
@@ -29,7 +28,6 @@ const userSchema = yup.object().shape({
 
 const CreateParent = ({onSave}) => {
   const theme = useTheme();
-  const colors = tokens(theme.palette.mode);
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const [formData, setFormData] = useState({
     first_name: '',
