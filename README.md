@@ -44,3 +44,6 @@ OpenApi, Swagger
 
 ### Create Student Page
 <img src="images/createStudent.png" width="450" height="320"/>
+
+### Update Student Page
+<img src="images/updateStudent.png" width="450" height="320"/>
