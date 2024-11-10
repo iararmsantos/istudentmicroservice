@@ -6,6 +6,7 @@ import { tokens } from "../../theme";
 import useAxios from "../../hooks/useAxios";
 import axios from "axios";
 import ToastMessage from "../../components/ToastMessage";
+import { Link, useNavigate } from "react-router-dom";
 
 const Students = () => {
   const theme = useTheme();
@@ -16,7 +17,6 @@ const Students = () => {
     message: '',
     severity: 'info', //success, info, warning, error
   });
-  const [students, setStudents] = useState();
 
   //when click on save of the modal fetchParents again
   const fetchStudents = () => {
@@ -62,12 +62,22 @@ const Students = () => {
     }
   }
 
+  const navigate = useNavigate(); // Initialize navigate
+
+  const handleCellClick = (params) => {
+    if (params.field === 'id') { // Check if the clicked cell is the 'id' field
+      navigate(`/student/${params.value}`, { state: { studentData: params.row } });
+    }
+  };
+  
   const columns = [
-    { field: "id", headerName: "User Id", renderCell: (params) => (
-      <a href={`/students/${params.value}`} style={{  color: "inherit" }}>
-        {params.value}
-      </a>
-    ), },
+    { field: "id", headerName: "User Id", renderCell: (params) => {
+      return (
+        <span style={{ color: 'inherit', cursor: 'pointer', textDecoration: 'underline' }}>
+          {params.value}
+        </span>
+      );
+    }, },
     {
       field: "full_name",
       headerName: "Name",
@@ -85,6 +95,7 @@ const Students = () => {
           variant="contained"
           color="secondary"
           onClick={() => handleDelete(params.row.id)}
+         
         >
           Delete
         </Button>
@@ -99,7 +110,7 @@ const Students = () => {
         <Button
           variant="contained"
           sx={{ backgroundColor: `${colors.greenAccent[600]}` }}
-          href="create-student"
+          href="/student/0"
         >
           Create New Student
         </Button>
@@ -154,6 +165,7 @@ const Students = () => {
           rows={studentsResponse}
           columns={columns}
           slots={{ toolbar: GridToolbar }}
+          onCellClick={handleCellClick} // Pass the click handler
         />
       </Box>
       <ToastMessage message={snackbarState.message} isOpen={snackbarState.open} severity={snackbarState.severity} onClose={() => setSnackbarState(prev => ({...prev, open:false}))}/>

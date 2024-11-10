@@ -1,12 +1,12 @@
 import { useTheme } from "@mui/material";
 import React, {  useState } from "react";
-import { tokens } from "../../../theme";
+import { tokens } from "../../theme";
 import { Box, Button, TextField } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import Header from "../../Header";
-import useAxios from "../../../hooks/useAxios";
+import axios from "axios";
+import ToastMessage from "../../components/ToastMessage";
 
 const initialValues = {
   first_name: "",
@@ -27,7 +27,7 @@ const userSchema = yup.object().shape({
   email: yup.string().email("Email is not valid.").required("required"),
 });
 
-const CreateParent = () => {
+const CreateParent = ({onSave}) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const isNonMobile = useMediaQuery("(min-width:600px)");
@@ -37,16 +37,34 @@ const CreateParent = () => {
     phone: '',
     email: '',
 });
-  const { response, error, loading, fetchData} = useAxios();
+const [snackbarState, setSnackbarState] = useState({
+  open: false,
+  message: '',
+  severity: 'info', //success, info, warning, error
+})
 
-  const createParent = () => {
-    fetchData({
-      url: "/api/parents",
-      method: "POST",
-      data: formData,
-      headers: {'Authorization': `Bearer ${localStorage.getItem('accessToken')}`}
-    })
-  }
+  const fetchData = ({ url, method, data, headers }) => {
+    return new Promise((resolve, reject) => {
+      axios({ url, method, data, headers })
+        .then(response => resolve(response.data))
+        .catch(error => reject(error));
+    });
+  };
+
+  const createParent = async (formData) => {
+    try {
+      const response = await fetchData({
+        url: "/api/parents",
+        method: "POST",
+        data: formData,
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
+      });
+      return response;
+    } catch (error) {
+      console.error("Error creating parent:", error);
+      throw error; // Allows handleSubmit to catch this
+    }
+  };
 
   const handleInput = (e) => {
     setFormData({
@@ -55,15 +73,28 @@ const CreateParent = () => {
     });
 };
 
-  const handleSubmit = async (values, {resetForm}) => { 
-    createParent();   
-    if(error){
-        console.error("Error submitting form:", error);
-    } else {
-        console.log("Form submitted and reset successfully.");
-        resetForm();
-    }        
-  };  
+const handleSubmit = (values, { resetForm }) => {
+  createParent(values)
+    .then(() => {
+      setSnackbarState({
+        open: true,
+        message: "Parent created successfully.",
+        severity: "success",
+      });
+      console.log("Form submitted and reset successfully.");
+      resetForm();
+      onSave(); // Close the popup only on successful save
+    })
+    .catch(error => {
+      setSnackbarState({
+        open: true,
+        message: `Error submitting form: ${error.message}`,
+        severity: "error",
+      });
+      console.error("Error submitting form:", error.message);
+      // Optionally, display an error message to the user
+    });
+};
 
   return (
     <Box m="20px">      
@@ -88,8 +119,7 @@ const CreateParent = () => {
             
             return (
           <form onSubmit={submitForm}>
-             {Object.keys(errors).length > 0 && console.log("Validation errors:", errors)}
-             {/* Your form fields */}
+             {Object.keys(errors).length > 0 && console.log("Validation errors:", errors)}             
             <Box
               display="grid"
               gap="30px"
@@ -174,6 +204,7 @@ const CreateParent = () => {
           </form>
         )}}
       </Formik>
+      <ToastMessage message={snackbarState.message} isOpen={snackbarState.open} severity={snackbarState.severity} onClose={() => setSnackbarState(prev => ({...prev, open:false}))}/>
     </Box>
   );
 };

@@ -1,11 +1,11 @@
 import { useTheme } from "@mui/material";
 import React from "react";
-import { tokens } from "../../../theme";
+import { tokens } from "../../theme";
 import { Box, Button, TextField } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import Header from "../../Header";
+import Header from "../../components/Header";
 
 const initialValues = {
   firstName: "",

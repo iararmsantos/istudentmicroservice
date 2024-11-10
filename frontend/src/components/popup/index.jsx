@@ -2,11 +2,10 @@ import { Button, Dialog, DialogContent, DialogTitle, Typography } from '@mui/mat
 import React from 'react'
 
 const Popup = (props) => {
-  const {title, children, openPopup, setOpenPopup, refresh} = props;
+  const {title, children, openPopup, setOpenPopup} = props;
 
   const handleClose = () => {
-    setOpenPopup(false);
-    refresh();
+    setOpenPopup(false);    
   }
   return (
     <Dialog open={openPopup} onClose={handleClose}>
