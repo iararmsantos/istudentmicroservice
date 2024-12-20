@@ -45,6 +45,10 @@ jobs:
         working-directory: ./login-service
         run: mvn clean package -DskipTests
 
+      - name: Build Parent Microservice JAR
+        working-directory: ./parent-service
+        run: mvn clean package -DskipTests
+
       - name: Build Student Microservice JAR
         working-directory: ./student-service
         run: mvn clean package -DskipTests
