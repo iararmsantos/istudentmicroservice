@@ -47,3 +47,11 @@ OpenApi, Swagger
 
 ### Update Student Page
 <img src="images/updateStudent.png" width="450" height="320"/>
+
+### Github Actions
+- Go to the directory Docker and run:
+  ```docker-compose up -d```
+- this command will download images from docker hub and build in your docker hub
+- Once every service is started you can import the postman collections
+- and run commands to access the endpoints
+- the init.sql is the initial database creation

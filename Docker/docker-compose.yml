@@ -1,0 +1,171 @@
+services:
+  shared-db:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      TZ: America/Sao_Paulo
+      MYSQL_ROOT_PASSWORD: admin123
+      MYSQL_USER: docker
+      MYSQL_PASSWORD: admin123
+      MYSQL_DATABASE: shared_database
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_TCP_PORT: 3306
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - 3306:3306
+    expose:
+      - 3306
+    networks:
+      - iara-network
+
+  naming-server:
+    image: iararmsantos/naming-server:latest
+    ports:
+      - 8761:8761
+    restart: always
+    networks:
+      - iara-network
+
+  api-gateway:
+    image: iararmsantos/api-gateway:latest
+    ports:
+      - 8080:8080
+    restart: always
+    depends_on:
+      - naming-server
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://naming-server:8761/eureka
+    networks:
+      - iara-network
+
+  course-service:
+    image: iararmsantos/course-service:latest
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      TZ: America/Sao_Paulo
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://naming-server:8761/eureka
+      SPRING.DATASOURCE.URL: jdbc:mysql://shared-db:3306/course_service?useSSL=false&serverTimezone=UTC&enabledTLSProtocols=TLSv1.2
+      SPRING.DATASOURCE.USERNAME: root
+      SPRING.DATASOURCE.PASSWORD: admin123
+      SPRING.FLYWAY.URL: jdbc:mysql://shared-db:3306/course_service?useSSL=false&serverTimezone=UTC&enabledTLSProtocols=TLSv1.2
+      SPRING.FLYWAY.USER: root
+      SPRING.FLYWAY.PASSWORD: admin123
+    ports:
+      - 8084:8084
+    depends_on:
+      - naming-server
+      - shared-db
+    networks:
+      - iara-network
+
+  grade-service:
+    image: iararmsantos/grade-service:latest
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      TZ: America/Sao_Paulo
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://naming-server:8761/eureka
+      SPRING.DATASOURCE.URL: jdbc:mysql://shared-db:3306/grade_service?useSSL=false&serverTimezone=UTC&enabledTLSProtocols=TLSv1.2
+      SPRING.DATASOURCE.USERNAME: root
+      SPRING.DATASOURCE.PASSWORD: admin123
+      SPRING.FLYWAY.URL: jdbc:mysql://shared-db:3306/grade_service?useSSL=false&serverTimezone=UTC&enabledTLSProtocols=TLSv1.2
+      SPRING.FLYWAY.USER: root
+      SPRING.FLYWAY.PASSWORD: admin123
+    ports:
+      - 8085:8085
+    depends_on:
+      - naming-server
+      - shared-db
+    networks:
+      - iara-network
+
+  login-service:
+    image: iararmsantos/login-service:latest
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      TZ: America/Sao_Paulo
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://naming-server:8761/eureka
+      SPRING.DATASOURCE.URL: jdbc:mysql://shared-db:3306/login_service?useSSL=false&serverTimezone=UTC&enabledTLSProtocols=TLSv1.2
+      SPRING.DATASOURCE.USERNAME: root
+      SPRING.DATASOURCE.PASSWORD: admin123
+      SPRING.FLYWAY.URL: jdbc:mysql://shared-db:3306/login_service?useSSL=false&serverTimezone=UTC&enabledTLSProtocols=TLSv1.2
+      SPRING.FLYWAY.USER: root
+      SPRING.FLYWAY.PASSWORD: admin123
+    ports:
+      - 8081:8081
+    depends_on:
+      - naming-server
+      - shared-db
+    networks:
+      - iara-network
+
+  parent-service:
+    image: iararmsantos/parent-service:latest
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      TZ: America/Sao_Paulo
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://naming-server:8761/eureka
+      SPRING.DATASOURCE.URL: jdbc:mysql://shared-db:3306/parent_service?useSSL=false&serverTimezone=UTC&enabledTLSProtocols=TLSv1.2
+      SPRING.DATASOURCE.USERNAME: root
+      SPRING.DATASOURCE.PASSWORD: admin123
+      SPRING.FLYWAY.URL: jdbc:mysql://shared-db:3306/parent_service?useSSL=false&serverTimezone=UTC&enabledTLSProtocols=TLSv1.2
+      SPRING.FLYWAY.USER: root
+      SPRING.FLYWAY.PASSWORD: admin123
+    ports:
+      - 8086:8086
+    depends_on:
+      - naming-server
+      - shared-db
+    networks:
+      - iara-network
+
+  student-service:
+    image: iararmsantos/student-service:latest
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      TZ: America/Sao_Paulo
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://naming-server:8761/eureka
+      SPRING.DATASOURCE.URL: jdbc:mysql://shared-db:3306/student_service?useSSL=false&serverTimezone=UTC&enabledTLSProtocols=TLSv1.2
+      SPRING.DATASOURCE.USERNAME: root
+      SPRING.DATASOURCE.PASSWORD: admin123
+      SPRING.FLYWAY.URL: jdbc:mysql://shared-db:3306/student_service?useSSL=false&serverTimezone=UTC&enabledTLSProtocols=TLSv1.2
+      SPRING.FLYWAY.USER: root
+      SPRING.FLYWAY.PASSWORD: admin123
+    ports:
+      - 8082:8082
+    depends_on:
+      - naming-server
+      - shared-db
+    networks:
+      - iara-network
+
+  teacher-service:
+    image: iararmsantos/teacher-service:latest
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      TZ: America/Sao_Paulo
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://naming-server:8761/eureka
+      SPRING.DATASOURCE.URL: jdbc:mysql://shared-db:3306/teacher_service?useSSL=false&serverTimezone=UTC&enabledTLSProtocols=TLSv1.2
+      SPRING.DATASOURCE.USERNAME: root
+      SPRING.DATASOURCE.PASSWORD: admin123
+      SPRING.FLYWAY.URL: jdbc:mysql://shared-db:3306/teacher_service?useSSL=false&serverTimezone=UTC&enabledTLSProtocols=TLSv1.2
+      SPRING.FLYWAY.USER: root
+      SPRING.FLYWAY.PASSWORD: admin123
+    ports:
+      - 8083:8083
+    depends_on:
+      - naming-server
+      - shared-db
+    networks:
+      - iara-network
+networks:
+  iara-network:
+    driver: bridge
