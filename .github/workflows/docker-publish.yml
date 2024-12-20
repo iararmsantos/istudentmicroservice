@@ -23,6 +23,76 @@ jobs:
 
       - name: Build Eureka Naming Server Container Image
         working-directory: ./naming-server
-        run: mvn spring-boot:build-image -DskipTests
+        run: mvn clean package -DskipTests
 
-      
+      - name: Build Api Gateway Container Image
+        working-directory: ./api-gateway
+        run: mvn clean package -DskipTests
+
+      - name: Build Course Microservice JAR
+        working-directory: ./course-service
+        run: mvn clean package -DskipTests
+
+      - name: Build Grade Microservice JAR
+        working-directory: ./grade-service
+        run: mvn clean package -DskipTests
+
+      - name: Build Login Microservice JAR
+        working-directory: ./login-service
+        run: mvn clean package -DskipTests
+
+      - name: Build Student Microservice JAR
+        working-directory: ./student-service
+        run: mvn clean package -DskipTests
+
+      - name: Build Teacher Microservice JAR
+        working-directory: ./teacher-service
+        run: mvn clean package -DskipTests
+
+      - name: Build Grade Microservice JAR
+        working-directory: ./grade-service
+        run: mvn clean package -DskipTests
+
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+          
+      - name: Docker Compose Build
+        working-directory: ./
+        run: docker-compose build
+
+      - name: Push to Docker Hub Container Registry 
+        run: |
+          docker tag ${{ secrets.DOCKER_USERNAME }}/naming-server:0.0.1-SNAPSHOT ${{ secrets.DOCKER_USERNAME }}/naming-server:$${{ github.run_id }}
+          docker tag ${{ secrets.DOCKER_USERNAME }}/naming-server:0.0.1-SNAPSHOT ${{ secrets.DOCKER_USERNAME }}/naming-server:latest
+          docker tag ${{ secrets.DOCKER_USERNAME }}/api-gateway:0.0.1-SNAPSHOT ${{ secrets.DOCKER_USERNAME }}/api-gateway:$${{ github.run_id }}
+          docker tag ${{ secrets.DOCKER_USERNAME }}/api-gateway:0.0.1-SNAPSHOT ${{ secrets.DOCKER_USERNAME }}/api-gateway:latest
+          docker tag ${{ secrets.DOCKER_USERNAME }}/course-service:0.0.1-SNAPSHOT ${{ secrets.DOCKER_USERNAME }}/course-service:$${{ github.run_id }}
+          docker tag ${{ secrets.DOCKER_USERNAME }}/course-service:0.0.1-SNAPSHOT ${{ secrets.DOCKER_USERNAME }}/course-service:latest
+          docker tag ${{ secrets.DOCKER_USERNAME }}/grade-service:0.0.1-SNAPSHOT ${{ secrets.DOCKER_USERNAME }}/grade-service:$${{ github.run_id }}
+          docker tag ${{ secrets.DOCKER_USERNAME }}/grade-service:0.0.1-SNAPSHOT ${{ secrets.DOCKER_USERNAME }}/grade-service:latest
+          docker tag ${{ secrets.DOCKER_USERNAME }}/login-service:0.0.1-SNAPSHOT ${{ secrets.DOCKER_USERNAME }}/login-service:$${{ github.run_id }}
+          docker tag ${{ secrets.DOCKER_USERNAME }}/login-service:0.0.1-SNAPSHOT ${{ secrets.DOCKER_USERNAME }}/login-service:latest
+          docker tag ${{ secrets.DOCKER_USERNAME }}/parent-service:0.0.1-SNAPSHOT ${{ secrets.DOCKER_USERNAME }}/parent-service:$${{ github.run_id }}
+          docker tag ${{ secrets.DOCKER_USERNAME }}/parent-service:0.0.1-SNAPSHOT ${{ secrets.DOCKER_USERNAME }}/parent-service:latest
+          docker tag ${{ secrets.DOCKER_USERNAME }}/student-service:0.0.1-SNAPSHOT ${{ secrets.DOCKER_USERNAME }}/student-service:$${{ github.run_id }}
+          docker tag ${{ secrets.DOCKER_USERNAME }}/student-service:0.0.1-SNAPSHOT ${{ secrets.DOCKER_USERNAME }}/student-service:latest
+          docker tag ${{ secrets.DOCKER_USERNAME }}/teacher-service:0.0.1-SNAPSHOT ${{ secrets.DOCKER_USERNAME }}/teacher-service:$${{ github.run_id }}
+          docker tag ${{ secrets.DOCKER_USERNAME }}/teacher-service:0.0.1-SNAPSHOT ${{ secrets.DOCKER_USERNAME }}/teacher-service:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/naming-server:$${{ github.run_id }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/naming-server:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/api-gateway:$${{ github.run_id }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/api-gateway:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/course-service:$${{ github.run_id }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/course-service:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/grade-service:$${{ github.run_id }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/grade-service:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/login-service:$${{ github.run_id }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/login-service:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/parent-service:$${{ github.run_id }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/parent-service:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/student-service:$${{ github.run_id }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/student-service:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/teacher-service:$${{ github.run_id }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/teacher-service:latest      
