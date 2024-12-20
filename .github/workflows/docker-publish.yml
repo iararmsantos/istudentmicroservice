@@ -29,6 +29,10 @@ jobs:
         working-directory: ./api-gateway
         run: mvn clean package -DskipTests
 
+      - name: Build and Install Utilcommon
+        working-directory: ./_toolbox/utilcommon
+        run: mvn clean install
+
       - name: Build Course Microservice JAR
         working-directory: ./course-service
         run: mvn clean package -DskipTests
