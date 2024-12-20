@@ -25,6 +25,9 @@ services:
     ports:
       - 8761:8761
     restart: always
+    build:
+      context: ./naming-server
+      dockerfile: Dockerfile
     networks:
       - iara-network
 
@@ -33,6 +36,9 @@ services:
     ports:
       - 8080:8080
     restart: always
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
     depends_on:
       - naming-server
     environment:
