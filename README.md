@@ -1,3 +1,5 @@
+[![Continuous Integration With Github](https://github.com/iararmsantos/istudentmicroservice/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/iararmsantos/istudentmicroservice/actions/workflows/docker-publish.yml)
+
 # iStudentmicroservice
 Application to manage students, parents, teacher, courses and grade
 
