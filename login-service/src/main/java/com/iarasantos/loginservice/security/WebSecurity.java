@@ -61,6 +61,9 @@ public class WebSecurity {
                         .requestMatchers("/v3/api-docs", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/webjars/**", "/configuration/ui", "/swagger-resources/**","/configuration/security", "/swagger-resources")
                         .permitAll()
 //                .requestMatchers("/api/**").authenticated()
+                //uncomment to test this service
+                        .requestMatchers("/api/**")
+                        .permitAll()
                 .anyRequest().denyAll())
 //                        .access(gatewayIp))
 //                .anyRequest().permitAll())

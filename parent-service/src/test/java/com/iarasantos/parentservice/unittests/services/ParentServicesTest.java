@@ -5,8 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import com.iarasantos.parentservice.controller.ParentController;
 import com.iarasantos.parentservice.data.vo.v1.ParentVO;
 import com.iarasantos.parentservice.exceptions.RequiredObjectIsNullException;
 import com.iarasantos.parentservice.unittests.mocks.MockParent;
@@ -24,6 +28,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.*;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockitoExtension.class)
@@ -36,6 +45,9 @@ public class ParentServicesTest {
 
     @Mock
     ParentRepository repository;
+
+    @Mock
+    private PagedResourcesAssembler<ParentVO> assembler;
 
     @BeforeEach
     void setUpMocks() throws Exception {
@@ -92,48 +104,50 @@ public class ParentServicesTest {
     }
 
     @Test
-    void testGetParents(){
-        List<Parent> list = input.mockEntityList();
+    void testGetParents() {
+        // Mock Pageable
+        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "firstName"));
 
-        when(repository.findAll()).thenReturn(list);
+        // Mock Parent entity list and Page
+        List<Parent> parents = input.mockEntityList();
+        Page<Parent> parentPage = new PageImpl<>(List.of(parents.get(0), parents.get(1)), pageable, 2);
 
-        var result = service.getParents();
+        // Mock ParentVO
+        List<ParentVO> parentVOS = input.mockVOList();
 
+        // Mock repository behavior
+        when(repository.findAll(pageable)).thenReturn(parentPage);
+
+        // Mock adding links
+        parentVOS.get(0).add(linkTo(methodOn(ParentController.class).getParent(parentVOS.get(0).getKey())).withSelfRel());
+        parentVOS.get(1).add(linkTo(methodOn(ParentController.class).getParent(parentVOS.get(1).getKey())).withSelfRel());
+
+        // Mock PagedResourcesAssembler behavior
+        EntityModel<ParentVO> entityModel1 = EntityModel.of(parentVOS.get(0));
+        EntityModel<ParentVO> entityModel2 = EntityModel.of(parentVOS.get(1));
+        PagedModel<EntityModel<ParentVO>> expectedPagedModel = PagedModel.of(
+                List.of(entityModel1, entityModel2),
+                new PagedModel.PageMetadata(10, 0, 2)
+        );
+        Link link = linkTo(methodOn(ParentController.class).getParents(0, 10, "asc")).withSelfRel();
+        when(assembler.toModel(any(Page.class), eq(link))).thenReturn(expectedPagedModel);
+
+        // Execute the service method
+        PagedModel<EntityModel<ParentVO>> result = service.getParents(pageable);
+
+        // Verify repository interaction
+        verify(repository, times(1)).findAll(pageable);
+
+        // Verify PagedResourcesAssembler interaction
+        verify(assembler, times(1)).toModel(any(Page.class), eq(link));
+
+        // Assert the result
         assertNotNull(result);
-        assertEquals(14, result.size());
-
-        var ParentOne = result.get(1);
-        assertNotNull(ParentOne);
-        assertNotNull(ParentOne.getKey());
-        assertNotNull(ParentOne.getLinks());
-        assertTrue(ParentOne.getLinks().toString().contains("</api/parents/1>;rel=\"self\""));
-        assertEquals("First Name Test1", ParentOne.getFirstName());
-        assertEquals("Last Name Test1", ParentOne.getLastName());
-        assertEquals("Phone Test1", ParentOne.getPhone());
-        assertEquals("Email Test1", ParentOne.getEmail());
-        assertEquals(Role.PARENT, ParentOne.getRole());
-
-        var ParentFour = result.get(1);
-        assertNotNull(ParentFour);
-        assertNotNull(ParentFour.getKey());
-        assertNotNull(ParentFour.getLinks());
-        assertTrue(ParentFour.getLinks().toString().contains("</api/parents/1>;rel=\"self\""));
-        assertEquals("First Name Test1", ParentFour.getFirstName());
-        assertEquals("Last Name Test1", ParentFour.getLastName());
-        assertEquals("Phone Test1", ParentFour.getPhone());
-        assertEquals("Email Test1", ParentFour.getEmail());
-        assertEquals(Role.PARENT, ParentFour.getRole());
-
-        var ParentSeven = result.get(1);
-        assertNotNull(ParentSeven);
-        assertNotNull(ParentSeven.getKey());
-        assertNotNull(ParentSeven.getLinks());
-        assertTrue(ParentSeven.getLinks().toString().contains("</api/parents/1>;rel=\"self\""));
-        assertEquals("First Name Test1", ParentSeven.getFirstName());
-        assertEquals("Last Name Test1", ParentSeven.getLastName());
-        assertEquals("Phone Test1", ParentSeven.getPhone());
-        assertEquals("Email Test1", ParentSeven.getEmail());
-        assertEquals(Role.PARENT, ParentSeven.getRole());
+        assertEquals(2, result.getContent().size());
+        assertTrue(result.getContent().stream().anyMatch(e -> e.getContent().getFirstName().equals(parentVOS.get(0).getFirstName())));
+        assertTrue(result.getContent().stream().anyMatch(e -> e.getContent().getFirstName().equals(parentVOS.get(1).getFirstName())));
+        assertTrue(result.getContent().stream().anyMatch(e -> e.getContent().getLinks().equals(parentVOS.get(0).getLinks())));
+        assertTrue(result.getContent().stream().anyMatch(e -> e.getContent().getLinks().equals(parentVOS.get(1).getLinks())));
     }
 
     @Test

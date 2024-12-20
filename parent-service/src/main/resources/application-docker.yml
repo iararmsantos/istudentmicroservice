@@ -1,0 +1,26 @@
+server:
+  port: 8086
+eureka:
+  client:
+    service-url:
+      defaultZone: http://naming-server:8761/eureka
+spring:
+  application:
+    name: parent-service
+  #database configuration
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://shared-db:3306/parent_service?useTimezone=true&serverTimezone=UTC
+    username: docker
+    password: admin123
+
+  jpa:
+    show_sql: true
+    hibernate:
+      ddl-auto: update
+
+  flyway:
+    url: jdbc:mysql://shared-db:3306
+    schemas: parent_service
+    user: docker
+    password: admin123

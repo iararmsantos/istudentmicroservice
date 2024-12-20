@@ -10,13 +10,16 @@ import com.iarasantos.teacherservice.exceptions.ResourceNotFoundException;
 import com.iarasantos.teacherservice.model.Role;
 import com.iarasantos.teacherservice.model.Teacher;
 import com.iarasantos.teacherservice.repository.TeacherRepository;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +30,10 @@ public class TeacherServiceImpl implements TeacherService {
     @Autowired
     private TeacherRepository repository;
 
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
+
+    @Autowired
+    private PagedResourcesAssembler<TeacherVO> assembler;
 
     public TeacherServiceImpl() {
         modelMapper = new ModelMapper();
@@ -48,18 +54,24 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public List<TeacherVO> getTeachers() {
-        List<Teacher> teachers = repository.findAll();
-        List<TeacherVO> teachersVO = teachers.stream().map(
-                (teacher) -> this.modelMapper.map(teacher, TeacherVO.class)
-        ).collect(Collectors.toList());
-        teachersVO
-                .stream()
-                .forEach(teacher
-                        -> teacher
-                        .add(linkTo(methodOn(TeacherController.class)
-                                .getTeacher(teacher.getKey())).withSelfRel()));
-        return teachersVO;
+    public PagedModel<EntityModel<TeacherVO>> getTeachers(Pageable pageable) {
+        // Fetch paginated Student entities from the repository
+        Page<Teacher> studentPage = repository.findAll(pageable);
+
+        // Map each Student to a StudentVO
+        Page<TeacherVO> studentVoPage = studentPage.map(s -> this.modelMapper.map(s, TeacherVO.class));
+
+        // Add self-links to each StudentVO
+        studentVoPage.forEach(p -> p.add(
+                linkTo(methodOn(TeacherController.class)
+                        .getTeacher(p.getKey())
+                ).withSelfRel()
+        ));
+
+        // add pagination hateoas link
+        Link link = linkTo(methodOn(TeacherController.class).getTeachers(pageable.getPageNumber(),
+                pageable.getPageSize(), "asc")).withSelfRel();
+        return assembler.toModel(studentVoPage, link);
     }
 
     @Override

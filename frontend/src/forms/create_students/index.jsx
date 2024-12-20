@@ -61,9 +61,9 @@ useEffect(() => {
     });
   }
 }, [error]);
-
+console.log(response)
   const parentsResponse = Array.isArray(response?.data) ? response.data : [];
-
+console.log({parentsResponse})
   const parentOptions = parentsResponse.map(parent => ({
     value: parent.id,
     label: `${parent.first_name} ${parent.last_name}`
@@ -105,6 +105,7 @@ useEffect(() => {
     }
   }
 
+  console.log({initialValues})
   const createStudent = async (formData) => {
     try {
       const response = await fetchStudent({
@@ -172,6 +173,7 @@ useEffect(() => {
     })
     }
   };
+
 
   return (
     <Box m="20px">

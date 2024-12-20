@@ -1,17 +1,19 @@
 package com.iarasantos.teacherservice.service;
 
 import com.iarasantos.teacherservice.data.vo.v1.TeacherVO;
-import java.util.List;
+import org.springframework.data.domain.Pageable;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 
 public interface TeacherService {
-    public TeacherVO create(TeacherVO teacher);
+    TeacherVO create(TeacherVO teacher);
 
-    public List<TeacherVO> getTeachers();
+    PagedModel<EntityModel<TeacherVO>> getTeachers(Pageable pageable);
 
-    public TeacherVO getTeacherById(long teacherId);
+    TeacherVO getTeacherById(long teacherId);
 
-    public void deleteTeacher(Long teacherId);
+    void deleteTeacher(Long teacherId);
 
-    public TeacherVO updateTeacher(TeacherVO request);
+    TeacherVO updateTeacher(TeacherVO request);
 
 }

@@ -12,12 +12,16 @@ import com.iarasantos.courseservice.model.Course;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -27,6 +31,9 @@ public class CourseServiceImpl implements CourseService {
     private CourseRepository repository;
 
     private ModelMapper modelMapper;
+
+    @Autowired
+    private PagedResourcesAssembler<CourseVO> assembler;
 
     public CourseServiceImpl() {
         this.modelMapper = new ModelMapper();
@@ -51,20 +58,23 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public List<CourseVO> getCourses() {
+    public PagedModel<EntityModel<CourseVO>> getCourses(Pageable pageable) {
 
-        List<Course> courses = repository.findAll();
-        List<CourseVO> coursesVO = courses.stream()
-                .map((course) -> this.modelMapper.map(course, CourseVO.class))
-                .collect(Collectors.toList());
+        Page<Course> courses = repository.findAll(pageable);
+
+        Page<CourseVO> coursesVO = courses.map(course ->
+                this.modelMapper.map(course, CourseVO.class));
 
         coursesVO
-                .stream()
                 .forEach(course -> course
                         .add(linkTo(methodOn(CourseController.class)
                                 .getCourse(course.getKey())).withSelfRel()));
 
-        return coursesVO;
+        Link link = linkTo(methodOn(CourseController.class).getCourses(
+                pageable.getPageNumber(), pageable.getPageSize(), "asc"))
+                .withSelfRel();
+
+        return assembler.toModel(coursesVO, link);
     }
 
     @Override

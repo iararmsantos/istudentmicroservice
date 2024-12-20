@@ -1,13 +1,18 @@
 package com.iarasantos.gradeservice.service;
 
 import com.iarasantos.gradeservice.data.vo.v1.GradeVO;
-import java.util.List;
+import org.springframework.data.domain.Pageable;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 
 public interface GradeService {
-    public GradeVO createGrade(GradeVO grade);
-    public List<GradeVO> getGrades();
-    public GradeVO getGradeById(long gradeId);
+    GradeVO createGrade(GradeVO grade);
 
-    public void deleteGrade(long gradeId);
-    public GradeVO updateGrade(GradeVO request);
+    PagedModel<EntityModel<GradeVO>> getGrades(Pageable pageable);
+
+    GradeVO getGradeById(long gradeId);
+
+    void deleteGrade(long gradeId);
+
+    GradeVO updateGrade(GradeVO request);
 }

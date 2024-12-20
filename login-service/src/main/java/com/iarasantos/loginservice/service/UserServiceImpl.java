@@ -9,8 +9,13 @@ import com.iarasantos.loginservice.exceptions.ResourceNotFoundException;
 import com.iarasantos.loginservice.model.UserEntity;
 import com.iarasantos.loginservice.repository.UserRepository;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -20,9 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
+
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -39,23 +43,34 @@ public class UserServiceImpl implements UserService {
 
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    @Autowired
+    private PagedResourcesAssembler<UserResponse> assembler;
+
     public UserServiceImpl(BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
 
     }
 
     @Override
-    public List<UserResponse> getUsers() {
-        List<UserEntity> usersList = repository.findAll();
+    public PagedModel<EntityModel<UserResponse>> getUsers(Pageable pageable) {
+        // Fetch paginated Student entities from the repository
+        Page<UserEntity> studentPage = repository.findAll(pageable);
 
-        List<UserResponse> users = mapList(usersList, UserResponse.class);
-        //hateoas
-        users
-                .stream()
-                .forEach(user -> user.add(linkTo(methodOn(UserController.class)
-                        .getUser(user.getUserId())).withSelfRel()));
+        // Map each User to a UserResponse
+        Page<UserResponse> userResponses = studentPage.map(s ->
+             this.modelMapper.map(s, UserResponse.class)
+        );
+        // Add self-links to each StudentVO
+        userResponses.forEach(p -> p.add(
+                linkTo(methodOn(UserController.class)
+                        .getUser(p.getUserId())
+                ).withSelfRel()
+        ));
 
-        return users;
+        // add pagination hateoas link
+        Link link = linkTo(methodOn(UserController.class).getUsers(pageable.getPageNumber(),
+                pageable.getPageSize(), "asc")).withSelfRel();
+        return assembler.toModel(userResponses, link);
     }
 
     @Override
@@ -152,12 +167,5 @@ public class UserServiceImpl implements UserService {
         ));
 
         return new User(user.getEmail(), user.getPassword(), true, true, true, true, new ArrayList<>());
-    }
-
-    <S, T> List<T> mapList(List<S> source, Class<T> targetClass) {
-        return source
-                .stream()
-                .map(element -> modelMapper.map(element, targetClass))
-                .collect(Collectors.toList());
     }
 }

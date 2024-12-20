@@ -10,18 +10,15 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/grades")
@@ -54,8 +51,17 @@ public class GradeController {
                     @ApiResponse(description = "Internal Server Error", responseCode = "500",
                             content = @Content)
             })
-    public List<GradeVO> getGrades() {
-        return service.getGrades();
+    public ResponseEntity<PagedModel<EntityModel<GradeVO>>> getGrades(
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "limit", defaultValue = "12") Integer limit,
+            @RequestParam(value = "direction", defaultValue = "asc") String direction
+    ) {
+        //convert direction to constant
+        Sort.Direction sortDirection = "desc".equalsIgnoreCase(direction) ?
+                Sort.Direction.DESC : Sort.Direction.ASC;
+
+        Pageable pageable = PageRequest.of(page, limit, Sort.by(sortDirection, "courseId"));
+        return ResponseEntity.ok(service.getGrades(pageable));
     }
 
     @PostMapping(

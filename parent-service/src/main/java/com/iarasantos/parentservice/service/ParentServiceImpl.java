@@ -10,12 +10,16 @@ import com.iarasantos.parentservice.exceptions.ResourceNotFoundException;
 import com.iarasantos.parentservice.model.Parent;
 import com.iarasantos.parentservice.repository.ParentRepository;
 import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +29,10 @@ public class ParentServiceImpl implements ParentService {
     @Autowired
     private ParentRepository repository;
 
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
+
+    @Autowired
+    private PagedResourcesAssembler<ParentVO> assembler;
 
     public ParentServiceImpl() {
         modelMapper = new ModelMapper();
@@ -33,17 +40,24 @@ public class ParentServiceImpl implements ParentService {
     }
 
     @Override
-    public List<ParentVO> getParents() {
-        List<Parent> parents = repository.findAll();
-        List<ParentVO> parentsVO = parents.stream().map(
-                (parent) -> this.modelMapper.map(parent, ParentVO.class)
-        ).collect(Collectors.toList());
-        parentsVO
-                .stream()
-                .forEach(parent -> parent
-                        .add(linkTo(methodOn(ParentController.class)
-                                .getParent(parent.getKey())).withSelfRel()));
-        return parentsVO;
+    public PagedModel<EntityModel<ParentVO>> getParents(Pageable pageable) {
+        // Fetch paginated Student entities from the repository
+        Page<Parent> studentPage = repository.findAll(pageable);
+
+        // Map each Student to a StudentVO
+        Page<ParentVO> studentVoPage = studentPage.map(s -> this.modelMapper.map(s, ParentVO.class));
+
+        // Add self-links to each StudentVO
+        studentVoPage.forEach(p -> p.add(
+                linkTo(methodOn(ParentController.class)
+                        .getParent(p.getKey())
+                ).withSelfRel()
+        ));
+
+        // add pagination hateoas link
+        Link link = linkTo(methodOn(ParentController.class).getParents(pageable.getPageNumber(),
+                pageable.getPageSize(), "asc")).withSelfRel();
+        return assembler.toModel(studentVoPage, link);
 
     }
 

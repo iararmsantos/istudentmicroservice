@@ -25,13 +25,13 @@ import java.util.Date;
 public class UserResponse extends RepresentationModel<UserResponse> implements Serializable {
     private static final long serialVersionUID = 1L;
 
-//    @JsonProperty("user_id")
+    @JsonProperty("user_id")
     private String userId;
 
-//    @JsonProperty("first_name")
+    @JsonProperty("first_name")
     private String firstName;
 
-//    @JsonProperty("last_name")
+    @JsonProperty("last_name")
     private String lastName;
 
     private String phone;
@@ -40,7 +40,7 @@ public class UserResponse extends RepresentationModel<UserResponse> implements S
 
     private Role role;
 
-//    @JsonProperty("creation_date")
+    @JsonProperty("creation_date")
     private Date creationDate;
 
     public void setId(Object o) {

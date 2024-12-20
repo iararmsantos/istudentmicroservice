@@ -1,12 +1,14 @@
 package com.iarasantos.studentservice.service;
 
 import com.iarasantos.studentservice.data.vo.v1.StudentVO;
-import java.util.List;
+import org.springframework.data.domain.Pageable;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 
 public interface StudentService {
     StudentVO createStudent(StudentVO student);
 
-    List<StudentVO> getStudents();
+    PagedModel<EntityModel<StudentVO>> getStudents(Pageable pageable);
 
     StudentVO getStudentById(Long studentId);
 

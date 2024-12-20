@@ -2,12 +2,13 @@ package com.iarasantos.loginservice.service;
 
 import com.iarasantos.loginservice.data.vo.v1.UserRequest;
 import com.iarasantos.loginservice.data.vo.v1.UserResponse;
+import org.springframework.data.domain.Pageable;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
-import java.util.List;
-
 public interface UserService extends UserDetailsService {
-    List<UserResponse> getUsers();
+    PagedModel<EntityModel<UserResponse>> getUsers(Pageable pageable);
 
     UserResponse getUser(Long userId);
 

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import Header from "../../components/Header";
-import { Box, Button, useTheme } from "@mui/material";
+import { Box, Button, Snackbar, useTheme } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
-import useAxios from "../../hooks/useAxios";
+
 import axios from "axios";
 import ToastMessage from "../../components/ToastMessage";
 import { useNavigate } from "react-router-dom";
@@ -11,35 +11,67 @@ import { useNavigate } from "react-router-dom";
 const Students = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const { response, error, fetchData } = useAxios();
+
   const [snackbarState, setSnackbarState] = useState({
     open: false,
     message: '',
     severity: 'info', //success, info, warning, error
   });
 
-  //when click on save of the modal fetchParents again
-  const fetchStudents = () => {
-    fetchData({
-      url: "/api/students",
-      method: "GET", headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
-    })
-  };
+  const [pageState, setPageState] = useState({
+    isLoading: false,
+    data: [],
+    total: 0,
+    page: 1,
+    pageSize: 25
+  });
+
+  const makeRequest = ({ url, method, data, headers, params }) => {
+    return new Promise((resolve, reject) => {
+      axios({ url, method, data, headers, params })
+        .then(response => resolve(response.data))
+        .catch(error => reject(error));
+    });
+  };                    
 
   useEffect(() => {
-    fetchStudents();
-    if(error){      
-      setSnackbarState({
-        open: true,
-        message: `Error fetching students: ${error.status} ${error.statusText}`,
-        severity: "error",
-      })
-  }
-  }, [])
+    const fetchData = async () => {
+      setPageState((old) => ({
+        ...old,
+        isLoading: true,
+      }));
+  
+      try {
+        const response = await makeRequest({
+          url: `/api/students`,
+          method: "GET",
+          headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
+          params: {
+            page: pageState.page,
+            limit: pageState.pageSize,
+            direction: "asc",
+          },
+        });
+  
+        setPageState((old) => ({
+          ...old,
+          isLoading: false,
+          data: response._embedded.studentVOList,
+          total: response.page.totalElements,
+        }));
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setPageState((old) => ({
+          ...old,
+          isLoading: false,
+        }));
+      }
+    };
+  
+    fetchData();
+  }, [pageState.page, pageState.pageSize]);
 
-  const studentsResponse = Array.isArray(response?.data) ? response.data : [];
-
-  async function handleDelete(id) {
+    async function handleDelete(id) {
     try {
       await axios.delete(
         `api/students/${id}`,{
@@ -58,13 +90,14 @@ const Students = () => {
         severity: "error",
       })      
     } finally {
-      fetchStudents();
+      // loadStudents();
     }
   }
 
   const navigate = useNavigate(); // Initialize navigate
 
   const handleCellClick = (params) => {
+    console.log(params)
     if (params.field === 'id') { // Check if the clicked cell is the 'id' field
       navigate(`/student/${params.value}`, { state: { studentData: params.row } });
     }
@@ -94,8 +127,7 @@ const Students = () => {
         <Button
           variant="contained"
           color="secondary"
-          onClick={() => handleDelete(params.row.id)}
-         
+          onClick={() => handleDelete(params.row.id)}         
         >
           Delete
         </Button>
@@ -161,11 +193,34 @@ const Students = () => {
         }}
       >
         <DataGrid
-          // checkboxSelection
-          rows={studentsResponse}
+          rows={pageState.data}
+          rowCount={pageState.total}
+          loading={pageState.isLoading}          
+          pagination
+          page={pageState.page - 1}
+          pageSize={pageState.pageSize}
+          rowsPerPageOptions={[25, 50, 100]} 
+          paginationMode="server"
+          onPaginationModelChange={(newModel) => {
+            console.log("Pagination Model Changed:", newModel);
+            setPageState((old) => ({
+              ...old,
+              page: newModel.page + 1, // Convert to one-based index for backend
+              pageSize: newModel.pageSize,
+            }));
+          }}
+          onPageSizeChange={(newPageSize) => setPageState(old => ({...old, pageSize: newPageSize}))}
           columns={columns}
+          onCellClick={handleCellClick}
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 25, // Default to 10 rows per page
+                page: 0, // Start from first page
+              },
+            },
+          }}
           slots={{ toolbar: GridToolbar }}
-          onCellClick={handleCellClick} // Pass the click handler
         />
       </Box>
       <ToastMessage message={snackbarState.message} isOpen={snackbarState.open} severity={snackbarState.severity} onClose={() => setSnackbarState(prev => ({...prev, open:false}))}/>

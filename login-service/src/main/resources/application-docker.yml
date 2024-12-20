@@ -1,0 +1,44 @@
+server:
+  port: 8081
+eureka:
+  client:
+    service-url:
+      defaultZone: http://naming-server:8761/eureka
+
+spring:
+  application:
+    name: login-service
+
+  #database configuration
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://shared-db:3306/login_service?useTimezone=true&serverTimezone=UTC
+    username: docker
+    password: admin123
+
+  jpa:
+    show_sql: true
+    hibernate:
+      ddl-auto: update
+
+  flyway:
+    url: jdbc:mysql://shared-db:3306
+    schemas: login_service
+    user: docker
+    password: admin123
+
+gateway:
+  ip: 127.0.0.1
+login:
+  url:
+    path: /login
+
+token:
+  expiration_time: 3600000
+  secret: H3(KVfajgJReaZeQb7cdrqBeZfgchvPhkigae2PhjVkYWRlPumnc1wko4pqresDd
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG

@@ -1,18 +1,19 @@
 package com.iarasantos.courseservice.service;
 
 import com.iarasantos.courseservice.data.vo.v1.CourseVO;
-
-import java.util.List;
+import org.springframework.data.domain.Pageable;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 
 public interface CourseService {
-    public CourseVO createCourse(CourseVO course);
+    CourseVO createCourse(CourseVO course);
 
-    public List<CourseVO> getCourses();
+    PagedModel<EntityModel<CourseVO>> getCourses(Pageable pageable);
 
-    public CourseVO getCourseById(long courseId);
+    CourseVO getCourseById(long courseId);
 
-    public void deleteCourse(long courseId);
+    void deleteCourse(long courseId);
 
-    public CourseVO updateCourse(CourseVO request);
+    CourseVO updateCourse(CourseVO request);
 
 }

@@ -1,5 +1,6 @@
 package com.iarasantos.loginservice.unittests.services;
 
+import com.iarasantos.loginservice.controller.UserController;
 import com.iarasantos.loginservice.data.vo.v1.UserRequest;
 import com.iarasantos.loginservice.data.vo.v1.UserResponse;
 import com.iarasantos.loginservice.exceptions.RequiredObjectIsNullException;
@@ -17,6 +18,11 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.*;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.List;
@@ -24,7 +30,10 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockitoExtension.class)
@@ -43,6 +52,9 @@ public class UserEntityServicesTest {
 
     @Mock
     BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    @Mock
+    private PagedResourcesAssembler<UserResponse> assembler;
 
     @BeforeEach
     void setUpMocks() throws Exception {
@@ -104,57 +116,52 @@ public class UserEntityServicesTest {
     }
 
     @Test
-    void testGetUsers() {
-        List<UserEntity> users = input.mockEntityList();
-        List<UserResponse> userResponses = input.mockResponseList();
+    void testGetStudents() {
+        // Mock Pageable
+        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "firstName"));
 
-        assert users.size() == userResponses.size();
+        // Mock Student entity list and Page
+        List<UserEntity> userEntities = input.mockEntityList();
+        Page<UserEntity> userEntityPage = new PageImpl<>(List.of(userEntities.get(0), userEntities.get(1)), pageable, 2);
 
-        users.forEach(userEntity -> {
-            UserResponse userResponse = userResponses.get(users.indexOf(userEntity));
-            when(modelMapper.map(userEntity, UserResponse.class)).thenReturn(userResponse);
-        });
+        // Mock StudentVO
+        List<UserResponse> userResponseList = input.mockResponseList();
 
-        when(repository.findAll()).thenReturn(users);
+        // Mock repository behavior
+        when(repository.findAll(pageable)).thenReturn(userEntityPage);
+        when(modelMapper.map(userEntities.get(0), UserResponse.class)).thenReturn(userResponseList.get(0));
+        when(modelMapper.map(userEntities.get(1), UserResponse.class)).thenReturn(userResponseList.get(1));
 
-        var result = service.getUsers();
+        // Mock adding links
+        userResponseList.get(0).add(linkTo(methodOn(UserController.class).getUser(userResponseList.get(0).getUserId())).withSelfRel());
+        userResponseList.get(1).add(linkTo(methodOn(UserController.class).getUser(userResponseList.get(1).getUserId())).withSelfRel());
 
+        // Mock PagedResourcesAssembler behavior
+        EntityModel<UserResponse> entityModel1 = EntityModel.of(userResponseList.get(0));
+        EntityModel<UserResponse> entityModel2 = EntityModel.of(userResponseList.get(1));
+        PagedModel<EntityModel<UserResponse>> expectedPagedModel = PagedModel.of(
+                List.of(entityModel1, entityModel2),
+                new PagedModel.PageMetadata(10, 0, 2)
+        );
+        Link link = linkTo(methodOn(UserController.class).getUsers(0, 10, "asc")).withSelfRel();
+        when(assembler.toModel(any(Page.class), eq(link))).thenReturn(expectedPagedModel);
+
+        // Execute the service method
+        PagedModel<EntityModel<UserResponse>> result = service.getUsers(pageable);
+
+        // Verify repository interaction
+        verify(repository, times(1)).findAll(pageable);
+
+        // Verify PagedResourcesAssembler interaction
+        verify(assembler, times(1)).toModel(any(Page.class), eq(link));
+
+        // Assert the result
         assertNotNull(result);
-        assertEquals(14, result.size());
-
-        var userOne = result.get(1);
-        assertNotNull(userOne);
-        assertNotNull(userOne.getLinks());
-        System.out.println(userOne.getLinks().toString());
-        assertTrue(userOne.getLinks().toString().contains("</api/users/TestUserId1>;rel=\"self\""));
-        assertEquals("First Name Test1", userOne.getFirstName());
-        assertEquals("Last Name Test1", userOne.getLastName());
-        assertEquals("Phone Test1", userOne.getPhone());
-        assertEquals("Email Test1", userOne.getEmail());
-        assertEquals("TestUserId1", userOne.getUserId());
-        assertEquals(Role.STUDENT, userOne.getRole());
-
-        var userFour = result.get(4);
-        assertNotNull(userFour);
-        assertNotNull(userFour.getLinks());
-        assertTrue(userFour.getLinks().toString().contains("</api/users/TestUserId4>;rel=\"self\""));
-        assertEquals("First Name Test4", userFour.getFirstName());
-        assertEquals("Last Name Test4", userFour.getLastName());
-        assertEquals("Phone Test4", userFour.getPhone());
-        assertEquals("Email Test4", userFour.getEmail());
-        assertEquals("TestUserId4", userFour.getUserId());
-        assertEquals(Role.STUDENT, userFour.getRole());
-
-        var userSeven = result.get(7);
-        assertNotNull(userSeven);
-        assertNotNull(userSeven.getLinks());
-        assertTrue(userSeven.getLinks().toString().contains("</api/users/TestUserId7>;rel=\"self\""));
-        assertEquals("First Name Test7", userSeven.getFirstName());
-        assertEquals("Last Name Test7", userSeven.getLastName());
-        assertEquals("Phone Test7", userSeven.getPhone());
-        assertEquals("Email Test7", userSeven.getEmail());
-        assertEquals("TestUserId7", userSeven.getUserId());
-        assertEquals(Role.STUDENT, userSeven.getRole());
+        assertEquals(2, result.getContent().size());
+        assertTrue(result.getContent().stream().anyMatch(e -> e.getContent().getFirstName().equals(userResponseList.get(0).getFirstName())));
+        assertTrue(result.getContent().stream().anyMatch(e -> e.getContent().getFirstName().equals(userResponseList.get(1).getFirstName())));
+        assertTrue(result.getContent().stream().anyMatch(e -> e.getContent().getLinks().equals(userResponseList.get(0).getLinks())));
+        assertTrue(result.getContent().stream().anyMatch(e -> e.getContent().getLinks().equals(userResponseList.get(1).getLinks())));
     }
 
     @Test

@@ -1,0 +1,147 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+      routes:
+        - id: parent-service
+          uri: lb://parent-service
+          predicates:
+            - Path=/api/parents/**
+            - Method=GET,PUT,DELETE,POST
+            - Header=Authorization, Bearer (.*)
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/parent-service/api/parents/(?<segment>.*), /api/parents/${segment}
+            - AuthorizationHeaderFilter
+
+        - id: course-service
+          uri: lb://course-service
+          predicates:
+            - Path=/api/courses/**
+            - Method=GET,PUT,DELETE,POST
+            - Header=Authorization, Bearer (.*)
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/course-service/api/courses/(?<segment>.*), /api/courses/${segment}
+            - AuthorizationHeaderFilter
+
+        - id: grade-service
+          uri: lb://course-service
+          predicates:
+            - Path=/api/grades/**
+            - Method=GET,PUT,DELETE,POST
+            - Header=Authorization, Bearer (.*)
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/grade-service/api/grades/(?<segment>.*), /api/grades/${segment}
+            - AuthorizationHeaderFilter
+
+        - id: student-service
+          uri: lb://student-service
+          predicates:
+            - Path=/api/students/**
+            - Method=GET,PUT,DELETE,POST
+            - Header=Authorization, Bearer (.*)
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/student-service/api/students/(?<segment>.*), /api/students/${segment}
+            - AuthorizationHeaderFilter
+
+        - id: teacher-service
+          uri: lb://teacher-service
+          predicates:
+            - Path=/api/teachers/**
+            - Method=GET,PUT,DELETE,POST
+            - Header=Authorization, Bearer (.*)
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/teacher-service/api/teachers/(?<segment>.*), /api/teachers/${segment}
+            - AuthorizationHeaderFilter
+
+        - id: login-service
+          uri: lb://login-service
+          predicates:
+            - Path=/api/users/**
+            - Method=GET,PUT,DELETE
+            - Header=Authorization, Bearer (.*)
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/login-service/api/users/(?<segment>.*), /api/users/${segment}
+            - AuthorizationHeaderFilter
+
+        - id: user-login
+          uri: lb://login-service
+          predicates:
+            - Path=/login
+            - Method=POST
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/login-service/login/(?<segment>.*), /login/${segment}
+
+        - id: login-service-create
+          uri: lb://login-service/api/users
+          predicates:
+            - Path=/api/users
+            - Method=POST
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/login-service/api/users/(?<segment>.*), /api/users/${segment}
+
+        - id: swagger
+          uri: http://api-gateway:8080
+          predicates:
+            - Path=/v3/api-docs/**
+            - Path=/swagger-ui/**
+            - Path=/swagger-ui.html
+          filters:
+            - RewritePath=/v3/api-docs/(?<segment>.*), /v3/api-docs/${segment}
+            - RewritePath=/swagger-ui/(?<segment>.*), /swagger-ui/${segment}
+            - RewritePath=/swagger-ui.html, /swagger-ui.html
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://naming-server:8761/eureka
+
+token:
+  secret: H3(KVfajgJReaZeQb7cdrqBeZfgchvPhkigae2PhjVkYWRlPumnc1wko4pqresDd
+
+springdoc:
+  enable-native-support: true
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    config-url: /v3/api-docs/swagger-config
+    urls:
+      - url: /v3/api-docs
+        name: API Gateway Service
+        primaryName: API Gateway Service
+      - url: /login-service/v3/api-docs
+        name: Login Service
+        primaryName: Login Service
+      - url: /student-service/v3/api-docs
+        name: Student Service
+        primaryName: Student Service
+      - url: /course-service/v3/api-docs
+        name: Course Service
+        primaryName: Course Service
+      - url: /grade-service/v3/api-docs
+        name: Grade Service
+        primaryName: Grade Service
+      - url: /parent-service/v3/api-docs
+        name: Parent Service
+        primaryName: Parent Service
+      - url: /teacher-service/v3/api-docs
+        name: Teacher Service
+        primaryName: Teacher Service

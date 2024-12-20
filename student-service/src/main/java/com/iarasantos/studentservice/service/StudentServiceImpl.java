@@ -11,12 +11,18 @@ import com.iarasantos.studentservice.repository.StudentParentsRepository;
 import com.iarasantos.studentservice.repository.StudentRepository;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,10 +32,13 @@ public class StudentServiceImpl implements StudentService {
     @Autowired
     private StudentRepository repository;
 
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
     @Autowired
     private StudentParentsRepository parentRepository;
+
+    @Autowired
+    private PagedResourcesAssembler<StudentVO> assembler;
 
     @Autowired
     private StudentParentsService studentParentsService;
@@ -52,6 +61,7 @@ public class StudentServiceImpl implements StudentService {
         List<StudentParent> studentParents = studentParentsService.createParents(student, vo.getKey());
         vo.setStudentParents(studentParents);
 
+
         //hateoas
         vo.add(linkTo(methodOn(StudentController.class).getStudent(vo.getKey())).withSelfRel());
 
@@ -59,23 +69,25 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public List<StudentVO> getStudents() {
-        List<Student> students = repository.findAll();
-        List<StudentVO> studentsVO = students.stream().map(
-                (student) -> this.modelMapper.map(student, StudentVO.class)
-        ).collect(Collectors.toList());
+    public PagedModel<EntityModel<StudentVO>> getStudents(Pageable pageable) {
+        // Fetch paginated Student entities from the repository
+        Page<Student> studentPage = repository.findAll(pageable);
 
-        studentsVO.forEach(studentVO -> {
-            List<StudentParent> parents = parentRepository.findByStudentId(studentVO.getKey());
-            studentVO.setStudentParents(parents);
-        });
+        // Map each Student to a StudentVO
+        Page<StudentVO> studentVoPage = studentPage.map(s -> this.modelMapper.map(s, StudentVO.class));
 
-        //hateoas
-        studentsVO
-                .forEach(s -> s
-                        .add(linkTo(methodOn(StudentController.class)
-                                .getStudent(s.getKey())).withSelfRel()));
-        return studentsVO;
+        // Add self-links to each StudentVO
+        studentVoPage.forEach(p -> p.add(
+                linkTo(methodOn(StudentController.class)
+                        .getStudent(p.getKey())
+                ).withSelfRel()
+        ));
+
+        // add pagination hateoas link
+        Link link = linkTo(methodOn(StudentController.class).getStudents(pageable.getPageNumber(),
+                pageable.getPageSize(), "asc")).withSelfRel();
+        return assembler.toModel(studentVoPage, link);
+
     }
 
     @Override
@@ -124,13 +136,6 @@ public class StudentServiceImpl implements StudentService {
         vo.add(linkTo(methodOn(StudentController.class).getStudent(vo.getKey())).withSelfRel());
 
         return vo;
-    }
-
-    private StudentParent mapToParent(StudentParent parent, Student student) {
-        return StudentParent.builder()
-                .parentId(parent.getParentId())
-                .studentId(student.getId())
-                .build();
     }
 
     private void propertyMapping() {

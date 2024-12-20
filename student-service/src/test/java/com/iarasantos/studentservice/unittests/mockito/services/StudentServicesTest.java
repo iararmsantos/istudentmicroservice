@@ -1,5 +1,10 @@
 package com.iarasantos.studentservice.unittests.mockito.services;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+
+import com.iarasantos.studentservice.controller.StudentController;
 import com.iarasantos.studentservice.data.vo.v1.StudentVO;
 import com.iarasantos.studentservice.exceptions.RequiredObjectIsNullException;
 import com.iarasantos.studentservice.model.Role;
@@ -7,10 +12,9 @@ import com.iarasantos.studentservice.model.Student;
 import com.iarasantos.studentservice.model.StudentParent;
 import com.iarasantos.studentservice.repository.StudentParentsRepository;
 import com.iarasantos.studentservice.repository.StudentRepository;
+import com.iarasantos.studentservice.service.StudentParentsService;
 import com.iarasantos.studentservice.service.StudentServiceImpl;
 import com.iarasantos.studentservice.unittests.mocks.MockStudent;
-import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -19,14 +23,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.*;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.PagedModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.when;
+import java.util.List;
+import java.util.Optional;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockitoExtension.class)
@@ -42,6 +47,12 @@ public class StudentServicesTest {
 
     @Mock
     StudentParentsRepository parentsRepository;
+
+    @Mock
+    private StudentParentsService studentParentsService;
+
+    @Mock
+    private PagedResourcesAssembler<StudentVO> assembler;
 
     @BeforeEach
     void setUpMocks() throws Exception {
@@ -60,6 +71,8 @@ public class StudentServicesTest {
         vo.setKey(1L);
 //        when(repository.save(entity)).thenReturn(persisted);
         when(repository.save(any(Student.class))).thenReturn(persisted);
+        when(studentParentsService.createParents(any(StudentVO.class), anyLong()))
+                .thenReturn(entity.getStudentParents());
 
         var result = service.createStudent(vo);
         assertNotNull(result);
@@ -98,51 +111,50 @@ public class StudentServicesTest {
     }
 
     @Test
-    void testGetStudents(){
-        List<Student> list = input.mockEntityList();
+    void testGetStudents() {
+        // Mock Pageable
+        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "firstName"));
 
-        when(repository.findAll()).thenReturn(list);
+        // Mock Student entity list and Page
+        List<Student> students = input.mockEntityList();
+        Page<Student> studentPage = new PageImpl<>(List.of(students.get(0), students.get(1)), pageable, 2);
 
-        var result = service.getStudents();
+        // Mock StudentVO
+        List<StudentVO> studentVOS = input.mockVOList();
 
+        // Mock repository behavior
+        when(repository.findAll(pageable)).thenReturn(studentPage);
+
+        // Mock adding links
+        studentVOS.get(0).add(linkTo(methodOn(StudentController.class).getStudent(studentVOS.get(0).getKey())).withSelfRel());
+        studentVOS.get(1).add(linkTo(methodOn(StudentController.class).getStudent(studentVOS.get(1).getKey())).withSelfRel());
+
+        // Mock PagedResourcesAssembler behavior
+        EntityModel<StudentVO> entityModel1 = EntityModel.of(studentVOS.get(0));
+        EntityModel<StudentVO> entityModel2 = EntityModel.of(studentVOS.get(1));
+        PagedModel<EntityModel<StudentVO>> expectedPagedModel = PagedModel.of(
+                List.of(entityModel1, entityModel2),
+                new PagedModel.PageMetadata(10, 0, 2)
+        );
+        Link link = linkTo(methodOn(StudentController.class).getStudents(0, 10, "asc")).withSelfRel();
+        when(assembler.toModel(any(Page.class), eq(link))).thenReturn(expectedPagedModel);
+
+        // Execute the service method
+        PagedModel<EntityModel<StudentVO>> result = service.getStudents(pageable);
+
+        // Verify repository interaction
+        verify(repository, times(1)).findAll(pageable);
+
+        // Verify PagedResourcesAssembler interaction
+        verify(assembler, times(1)).toModel(any(Page.class), eq(link));
+
+        // Assert the result
         assertNotNull(result);
-        assertEquals(14, result.size());
-
-        var studentOne = result.get(1);
-        assertNotNull(studentOne);
-        assertNotNull(studentOne.getKey());
-        assertNotNull(studentOne.getLinks());
-        assertTrue(studentOne.getLinks().toString().contains("</api/students/1>;rel=\"self\""));
-        assertEquals(Long.valueOf(1), studentOne.getKey());
-        assertEquals("First Name Test1", studentOne.getFirstName());
-        assertEquals("Last Name Test1", studentOne.getLastName());
-        assertEquals("Phone Test1", studentOne.getPhone());
-        assertEquals("Email Test1", studentOne.getEmail());
-        assertEquals(Role.STUDENT, studentOne.getRole());
-
-        var studentFour = result.get(4);
-        assertNotNull(studentFour);
-        assertNotNull(studentFour.getKey());
-        assertNotNull(studentFour.getLinks());
-        assertTrue(studentFour.getLinks().toString().contains("</api/students/4>;rel=\"self\""));
-        assertEquals(Long.valueOf(4), studentFour.getKey());
-        assertEquals("First Name Test4", studentFour.getFirstName());
-        assertEquals("Last Name Test4", studentFour.getLastName());
-        assertEquals("Phone Test4", studentFour.getPhone());
-        assertEquals("Email Test4", studentFour.getEmail());
-        assertEquals(Role.STUDENT, studentFour.getRole());
-
-        var studentSeven = result.get(7);
-        assertNotNull(studentSeven);
-        assertNotNull(studentSeven.getKey());
-        assertNotNull(studentSeven.getLinks());
-        assertTrue(studentSeven.getLinks().toString().contains("</api/students/7>;rel=\"self\""));
-        assertEquals(Long.valueOf(7), studentSeven.getKey());
-        assertEquals("First Name Test7", studentSeven.getFirstName());
-        assertEquals("Last Name Test7", studentSeven.getLastName());
-        assertEquals("Phone Test7", studentSeven.getPhone());
-        assertEquals("Email Test7", studentSeven.getEmail());
-        assertEquals(Role.STUDENT, studentSeven.getRole());
+        assertEquals(2, result.getContent().size());
+        assertTrue(result.getContent().stream().anyMatch(e -> e.getContent().getFirstName().equals(studentVOS.get(0).getFirstName())));
+        assertTrue(result.getContent().stream().anyMatch(e -> e.getContent().getFirstName().equals(studentVOS.get(1).getFirstName())));
+        assertTrue(result.getContent().stream().anyMatch(e -> e.getContent().getLinks().equals(studentVOS.get(0).getLinks())));
+        assertTrue(result.getContent().stream().anyMatch(e -> e.getContent().getLinks().equals(studentVOS.get(1).getLinks())));
     }
 
     @Test

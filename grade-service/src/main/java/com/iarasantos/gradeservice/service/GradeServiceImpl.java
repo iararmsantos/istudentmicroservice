@@ -10,13 +10,17 @@ import com.iarasantos.gradeservice.exception.ResourceNotFoundException;
 import com.iarasantos.gradeservice.model.Grade;
 import com.iarasantos.gradeservice.repository.GradeRepository;
 import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +32,9 @@ public class GradeServiceImpl implements GradeService {
     private GradeRepository repository;
 
     private ModelMapper modelMapper;
+
+    @Autowired
+    private PagedResourcesAssembler<GradeVO> assembler;
 
     public GradeServiceImpl() {
         this.modelMapper = new ModelMapper();
@@ -49,19 +56,21 @@ public class GradeServiceImpl implements GradeService {
     }
 
     @Override
-    public List<GradeVO> getGrades() {
-        List<Grade> grades = repository.findAll();
-        List<GradeVO> gradesVO = grades.stream().map(
-                (grade) -> this.modelMapper.map(grade, GradeVO.class)
-        ).collect(Collectors.toList());
+    public PagedModel<EntityModel<GradeVO>> getGrades(Pageable pageable) {
+        Page<Grade> grades = repository.findAll(pageable);
+        Page<GradeVO> gradesVO = grades.map(
+                (grade) -> this.modelMapper.map(grade, GradeVO.class));
 
         gradesVO
-                .stream()
                 .forEach(grade -> grade
                         .add(linkTo(methodOn(GradeController.class)
                                 .getGrade(grade.getKey())).withSelfRel()));
 
-        return gradesVO;
+        Link link = linkTo(methodOn(GradeController.class)
+                .getGrades(pageable.getPageNumber(), pageable.getPageSize(), "asc"))
+                .withSelfRel();
+
+        return assembler.toModel(gradesVO, link);
     }
 
     @Override
