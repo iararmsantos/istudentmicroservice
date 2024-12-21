@@ -10,6 +10,8 @@ import com.iarasantos.parentservice.exceptions.ResourceNotFoundException;
 import com.iarasantos.parentservice.model.Parent;
 import com.iarasantos.parentservice.repository.ParentRepository;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
@@ -58,6 +60,21 @@ public class ParentServiceImpl implements ParentService {
         Link link = linkTo(methodOn(ParentController.class).getParents(pageable.getPageNumber(),
                 pageable.getPageSize(), "asc")).withSelfRel();
         return assembler.toModel(studentVoPage, link);
+
+    }
+
+    @Override
+    public List<ParentVO> getParents() {
+        List<Parent> parents = repository.findAll();
+        List<ParentVO> parentsVO = parents.stream().map(
+                (parent) -> this.modelMapper.map(parent, ParentVO.class)
+        ).collect(Collectors.toList());
+        parentsVO
+                .stream()
+                .forEach(parent -> parent
+                        .add(linkTo(methodOn(ParentController.class)
+                                .getParent(parent.getKey())).withSelfRel()));
+        return parentsVO;
 
     }
 

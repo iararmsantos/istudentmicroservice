@@ -20,6 +20,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/parents")
 @Tag(name = "Parents", description = "Endpoints to manage parents")
@@ -27,11 +29,11 @@ public class ParentController {
     @Autowired
     private ParentService service;
 
-    @GetMapping(
+    @GetMapping(value = "/paginated",
             produces = {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
                     MediaType.APPLICATION_YML})
     @ResponseStatus(HttpStatus.OK)
-    @Operation(summary = "Find all parents", description = "Find all parents",
+    @Operation(summary = "Find all parents paginated", description = "Find all parents paginated",
             tags = {"Parents"},
             responses = {
                     @ApiResponse(description = "Success", responseCode = "200",
@@ -62,6 +64,34 @@ public class ParentController {
 
         Pageable pageable = PageRequest.of(page, limit, Sort.by(sortDirection, "firstName"));
         return ResponseEntity.ok(service.getParents(pageable));
+    }
+
+    @GetMapping(
+            produces = {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
+                    MediaType.APPLICATION_YML})
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Find all parents", description = "Find all parents",
+            tags = {"Parents"},
+            responses = {
+                    @ApiResponse(description = "Success", responseCode = "200",
+                            content = {
+                                    @Content(
+                                            mediaType = "application/json",
+                                            array = @ArraySchema(
+                                                    schema = @Schema(implementation = ParentVO.class))
+                                    )
+                            }),
+                    @ApiResponse(description = "Bad request", responseCode = "400",
+                            content = @Content),
+                    @ApiResponse(description = "Unauthorized", responseCode = "401",
+                            content = @Content),
+                    @ApiResponse(description = "Not Found", responseCode = "404",
+                            content = @Content),
+                    @ApiResponse(description = "Internal Server Error", responseCode = "500",
+                            content = @Content)
+            })
+    public List<ParentVO> getParents() {
+        return service.getParents();
     }
 
     @PostMapping(

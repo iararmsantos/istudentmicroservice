@@ -5,10 +5,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 
+import java.util.List;
+
 public interface ParentService {
     ParentVO createParent(ParentVO parent);
 
     PagedModel<EntityModel<ParentVO>> getParents(Pageable pageable);
+
+    List<ParentVO> getParents();
 
     ParentVO getParentById(Long parentId);
 
