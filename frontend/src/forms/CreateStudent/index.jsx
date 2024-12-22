@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Box } from "@mui/material";
-import CreateParent from "../create_parent";
+import CreateParent from "../CreateParent";
 import { useNavigate, useParams } from "react-router-dom";
 import StudentForm from "../StudentForm";
 import useAxios from "../../hooks/useAxios";
@@ -47,10 +47,8 @@ const CreateStudent = () => {
     if (studentId !== '0' && isEdit) {
       loadStudent();
     }
-
-    fetchParents(); 
-  
-  }, [])
+    fetchParents();   
+  }, []);
 
 useEffect(() => {
   if (error) {  
@@ -61,9 +59,7 @@ useEffect(() => {
     });
   }
 }, [error]);
-console.log(response)
   const parentsResponse = Array.isArray(response?.data) ? response.data : [];
-console.log({parentsResponse})
   const parentOptions = parentsResponse.map(parent => ({
     value: parent.id,
     label: `${parent.first_name} ${parent.last_name}`

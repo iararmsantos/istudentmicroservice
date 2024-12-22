@@ -89,8 +89,7 @@ const Login = () => {
       navigate("/");
     }
     if (error) {
-      console.error(error);
-      alert("Login failed. Try again!");
+      console.error(error);      
     }
   }, [response, error, formData, navigate]);
 

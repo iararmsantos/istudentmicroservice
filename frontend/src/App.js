@@ -11,11 +11,12 @@ import Grades from './pages/grades';
 import View from './pages/view';
 import FAQ from './pages/faq';
 import Calendar from './pages/calendar';
-import CreateParent from './forms/create_parent';
+import CreateParent from './forms/CreateParent';
 import Login from './pages/login';
 import SignUp from './pages/signup';
-import CreateTeacher from './forms/create_teachers';
-import CreateStudent from './forms/create_students';
+import CreateTeacher from './forms/CreateTeacher';
+import CreateStudent from './forms/CreateStudent';
+import CreateCourse from './forms/CreateCourse';
 
 
 function App() {
@@ -33,8 +34,9 @@ function App() {
               <Route path="/students" element={<Students />} />
               <Route path="student/:studentId" element={<CreateStudent />} />
               <Route path="teachers" element={<Teachers />} />
-              <Route path="create-teacher" element={<CreateTeacher />} />
+              <Route path="teacher/:teacherId" element={<CreateTeacher />} />
               <Route path="courses" element={<Courses />} />
+              <Route path="course/:courseId" element={<CreateCourse />} />
               <Route path="grades" element={<Grades />} />
               <Route path="view" element={<View />} />
               <Route path="faq" element={<FAQ />} />

@@ -56,7 +56,7 @@ const SignUp = () => {
       console.log(response)
       navigate("/login");
     } catch (err) {
-      alert("Login failed. Try again!");
+      console.log("Login failed. Try again!");
     }
   };
   return (

@@ -51,8 +51,7 @@ const Students = () => {
             limit: pageState.pageSize,
             direction: "asc",
           },
-        });
-  
+        });  
         setPageState((old) => ({
           ...old,
           isLoading: false,
@@ -61,6 +60,11 @@ const Students = () => {
         }));
       } catch (error) {
         console.error("Error fetching data:", error);
+        setSnackbarState({
+          open: true,
+          message: `Error fetching students: ${error.message}`,
+          severity: "error",
+        })   
         setPageState((old) => ({
           ...old,
           isLoading: false,
@@ -104,7 +108,7 @@ const Students = () => {
   };
   
   const columns = [
-    { field: "id", headerName: "User Id", renderCell: (params) => {
+    { field: "id", headerName: "Id", renderCell: (params) => {
       return (
         <span style={{ color: 'inherit', cursor: 'pointer', textDecoration: 'underline' }}>
           {params.value}

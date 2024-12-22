@@ -10,3 +10,8 @@ export const validEmail = (value) => {
     const emailRegExp = new RegExp(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/);
     return emailRegExp.test(value) ? undefined : 'Type a valid email';
 }
+
+export const validYear = (value) => {
+    const phoneRegExp = new RegExp(/^[12][0-9]{3}$/im);
+    return phoneRegExp.test(value) ? undefined : 'Type a valid year';
+}
